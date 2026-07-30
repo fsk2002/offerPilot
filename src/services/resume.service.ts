@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { saveFile } from "@/lib/file-storage";
+import { parseResume } from "@/services/ai.service";
 import type { ResumeContent } from "@/types/resume";
 
 // ============================================================
@@ -45,6 +46,9 @@ export async function uploadResume(
     console.warn("PDF parse failed, saving without text:", e);
   }
 
+  // Structure the raw text into ResumeContent (mock-switchable LLM; null on failure)
+  const content = rawText ? await parseResume(rawText) : null;
+
   // Create resume record
   const resume = await prisma.resume.create({
     data: {
@@ -54,6 +58,7 @@ export async function uploadResume(
       version: 1,
       source: "upload",
       rawParsed: rawText ? { rawText } : undefined,
+      content: content ? (content as object) : undefined,
       userId,
     },
   });

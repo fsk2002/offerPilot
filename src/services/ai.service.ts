@@ -3,8 +3,16 @@ import { z } from "zod";
 import { loadPrompt } from "@/lib/prompts";
 import type { QuantMatchResult } from "@/lib/matching";
 import type { MatchReport } from "@/types/application";
+import type { ResumeContent } from "@/types/resume";
 
 const MODEL = process.env.LLM_MODEL || "gpt-4o-mini";
+
+function llmClient(): OpenAI {
+  return new OpenAI({
+    apiKey: process.env.LLM_API_KEY,
+    baseURL: process.env.LLM_BASE_URL,
+  });
+}
 
 // LLM 输出是外部数据，落库前用 schema 校验，防止 overall 缺失/越界导致 matchScore 变 NaN
 const reportSchema = z.object({
@@ -60,12 +68,7 @@ export async function qualitativeMatch(input: QualitativeInput): Promise<MatchRe
       missingSkills: input.quant.missing.join("、") || "无",
     });
 
-    const client = new OpenAI({
-      apiKey: process.env.LLM_API_KEY,
-      baseURL: process.env.LLM_BASE_URL,
-    });
-
-    const completion = await client.chat.completions.create({
+    const completion = await llmClient().chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
@@ -106,6 +109,76 @@ function mockReport(quant: QuantMatchResult): MatchReport {
       { section: "experience", content: "用量化成果（数字、指标）强化经历描述。" },
     ],
   };
+}
+
+const resumeContentSchema = z.object({
+  name: z.string().nullish(),
+  email: z.string().nullish(),
+  phone: z.string().nullish(),
+  summary: z.string().nullish(),
+  education: z
+    .array(
+      z.object({
+        school: z.string(),
+        degree: z.string(),
+        major: z.string(),
+        startDate: z.string(),
+        endDate: z.string().nullish(),
+      })
+    )
+    .nullish(),
+  experience: z
+    .array(
+      z.object({
+        company: z.string(),
+        title: z.string(),
+        startDate: z.string(),
+        endDate: z.string().nullish(),
+        description: z.string().nullish(),
+        highlights: z.array(z.string()),
+      })
+    )
+    .nullish(),
+  projects: z
+    .array(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        technologies: z.array(z.string()),
+        highlights: z.array(z.string()),
+      })
+    )
+    .nullish(),
+  skills: z
+    .array(z.object({ category: z.string(), items: z.array(z.string()) }))
+    .nullish(),
+});
+
+/**
+ * 把简历原始文本结构化为 ResumeContent。
+ * 未配置真实 key 时返回最小 mock（summary 取正文开头），保证 content 字段有形状可用。
+ * 解析失败不抛错，返回 null，让上传流程继续（简历仍可用 rawText 匹配）。
+ */
+export async function parseResume(rawText: string): Promise<ResumeContent | null> {
+  if (!isLLMConfigured()) {
+    return { summary: rawText.slice(0, 200).replace(/\s+/g, " ").trim() };
+  }
+
+  try {
+    const prompt = await loadPrompt("resume-parse", { resumeText: rawText });
+    const completion = await llmClient().chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.2,
+    });
+    const raw = completion.choices[0]?.message?.content;
+    if (!raw) return null;
+    return resumeContentSchema.parse(JSON.parse(raw)) as ResumeContent;
+  } catch (e) {
+    console.error("parseResume failed:", e);
+    return null;
+  }
 }
 
 export class AIServiceError extends Error {
