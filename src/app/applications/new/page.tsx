@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import RoleSelector from "@/components/shared/RoleSelector";
 
 interface Resume {
   id: string;
@@ -15,7 +16,7 @@ export default function NewAnalysisPage() {
   const [loading, setLoading] = useState(true);
   const [resumeId, setResumeId] = useState("");
   const [jdText, setJdText] = useState("");
-  const [targetRoles, setTargetRoles] = useState("");
+  const [targetRoles, setTargetRoles] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [jdUrl, setJdUrl] = useState("");
@@ -81,10 +82,7 @@ export default function NewAnalysisPage() {
         body: JSON.stringify({
           resumeId,
           jdText,
-          targetRoles: targetRoles
-            .split(/[,，、]/)
-            .map((s) => s.trim())
-            .filter(Boolean),
+          targetRoles,
         }),
       });
       const data = await res.json();
@@ -150,17 +148,10 @@ export default function NewAnalysisPage() {
             </div>
 
             <div>
-              <label htmlFor="roles" className="block text-sm font-medium mb-1">
-                目标岗位方向（可选，逗号分隔）
+              <label className="block text-sm font-medium mb-1">
+                目标岗位方向（可选，最多 3 个）
               </label>
-              <input
-                id="roles"
-                type="text"
-                value={targetRoles}
-                onChange={(e) => setTargetRoles(e.target.value)}
-                placeholder="前端开发工程师, 全栈工程师"
-                className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
-              />
+              <RoleSelector value={targetRoles} onChange={setTargetRoles} />
             </div>
 
             <div>
