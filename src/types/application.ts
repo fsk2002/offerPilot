@@ -3,6 +3,17 @@ export interface MatchReport {
   dimensions: MatchDimension[];
   gaps: Gap[];
   suggestions: Suggestion[];
+  // 异岗评分对比：所选各岗位的量化分（LLM 不返回，由 service 计算后合入）
+  roleComparison?: RoleScore[];
+}
+
+// 单个岗位画像的量化匹配结果，用于异岗评分对比
+export interface RoleScore {
+  roleId: string;
+  roleName: string;
+  quantScore: number;
+  matched: string[];
+  missing: string[];
 }
 
 export interface MatchDimension {
