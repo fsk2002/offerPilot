@@ -27,3 +27,7 @@ export const createAnalysisSchema = z.object({
 });
 
 export type CreateAnalysisInput = z.infer<typeof createAnalysisSchema>;
+
+export const jdFetchSchema = z.object({
+  url: z.string().url("请输入有效的链接"),
+});

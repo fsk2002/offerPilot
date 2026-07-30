@@ -18,6 +18,33 @@ export default function NewAnalysisPage() {
   const [targetRoles, setTargetRoles] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [jdUrl, setJdUrl] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [fetchHint, setFetchHint] = useState("");
+
+  const handleFetchUrl = async () => {
+    if (!jdUrl.trim()) return;
+    setFetchHint("");
+    setFetching(true);
+    try {
+      const res = await fetch("/api/jd-fetch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: jdUrl.trim() }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setFetchHint(data.error?.message || "抓取失败，请手动粘贴 JD");
+        return;
+      }
+      setJdText(data.data.text);
+      setFetchHint("已抓取，可在下方编辑后提交");
+    } catch {
+      setFetchHint("抓取失败，请手动粘贴 JD");
+    } finally {
+      setFetching(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -134,6 +161,33 @@ export default function NewAnalysisPage() {
                 placeholder="前端开发工程师, 全栈工程师"
                 className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
               />
+            </div>
+
+            <div>
+              <label htmlFor="jdUrl" className="block text-sm font-medium mb-1">
+                从链接抓取 JD（可选）
+              </label>
+              <div className="flex gap-2">
+                <input
+                  id="jdUrl"
+                  type="url"
+                  value={jdUrl}
+                  onChange={(e) => setJdUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                />
+                <button
+                  type="button"
+                  onClick={handleFetchUrl}
+                  disabled={fetching || !jdUrl.trim()}
+                  className="px-4 py-2 border border-border rounded-lg font-medium hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  {fetching ? "抓取中..." : "抓取"}
+                </button>
+              </div>
+              {fetchHint && (
+                <p className="text-xs text-muted-foreground mt-1">{fetchHint}</p>
+              )}
             </div>
 
             <div>
