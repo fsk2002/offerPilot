@@ -1,0 +1,31 @@
+{
+  "id": "data-engineer",
+  "name": "大数据开发工程师",
+  "family": "AI / 数据方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "Spark", "weight": 9, "aliases": ["spark", "spark sql", "pyspark"], "required": false },
+    { "name": "Flink", "weight": 9, "aliases": ["flink", "流处理", "实时计算"], "required": false },
+    { "name": "Hadoop 生态", "weight": 8, "aliases": ["hadoop", "hive", "hdfs", "yarn", "hbase", "mapreduce"], "required": false },
+    { "name": "SQL", "weight": 9, "aliases": ["sql", "hive sql", "数据仓库", "数仓"], "required": true },
+    { "name": "数据仓库", "weight": 8, "aliases": ["数仓", "数据仓库", "data warehouse", "维度建模", "分层", "dwd", "dws", "ods"], "required": false },
+    { "name": "Java/Scala", "weight": 7, "aliases": ["java", "scala", "python"], "required": false },
+    { "name": "消息队列", "weight": 7, "aliases": ["kafka", "消息队列", "pulsar", "mq"], "required": false },
+    { "name": "数据调度", "weight": 6, "aliases": ["调度", "airflow", "dolphinscheduler", "azkaban", "etl"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "大数据框架深度", "prompt": "考察对 Spark/Flink 计算原理、调优、数据倾斜处理的理解深度。", "weight": 9 },
+    { "name": "数仓建模", "prompt": "考察数据仓库分层、维度建模、数据治理的设计能力。", "weight": 8 },
+    { "name": "实时与离线", "prompt": "考察离线批处理与实时流处理链路的设计与稳定性保障。", "weight": 8 },
+    { "name": "数据质量", "prompt": "考察数据准确性、一致性、监控与治理的实践。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出大规模数据处理的框架掌握与数仓建模能力，用数据量级、任务时效、资源优化等指标量化，强调实时/离线链路与数据质量治理。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调数据量级、任务时效优化、数据倾斜/性能调优、数仓分层设计。" },
+      { "section": "experience", "emphasis": "突出数据平台建设、实时链路、数据治理的主导贡献。" },
+      { "section": "skills", "emphasis": "按计算框架、存储、数仓、调度分层组织。" }
+    ],
+    "keywords": ["Spark", "Flink", "数仓", "维度建模", "实时计算", "数据倾斜", "ETL", "数据治理"]
+  }
+}

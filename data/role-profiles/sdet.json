@@ -1,0 +1,31 @@
+{
+  "id": "sdet",
+  "name": "测试开发工程师",
+  "family": "测试开发方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "自动化测试", "weight": 10, "aliases": ["自动化测试", "自动化", "automation", "selenium", "appium", "cypress", "playwright"], "required": true },
+    { "name": "测试框架", "weight": 8, "aliases": ["pytest", "junit", "testng", "测试框架", "unittest"], "required": false },
+    { "name": "编程语言", "weight": 8, "aliases": ["python", "java", "go", "javascript"], "required": true },
+    { "name": "测试平台", "weight": 8, "aliases": ["测试平台", "测试工具", "平台开发", "效能工具", "流水线"], "required": false },
+    { "name": "接口测试", "weight": 8, "aliases": ["接口测试", "api 测试", "接口", "postman", "jmeter", "http"], "required": false },
+    { "name": "性能测试", "weight": 7, "aliases": ["性能测试", "压测", "jmeter", "locust", "loadrunner", "全链路压测"], "required": false },
+    { "name": "CI/CD", "weight": 7, "aliases": ["ci/cd", "cicd", "jenkins", "持续集成", "质量门禁"], "required": false },
+    { "name": "质量体系", "weight": 7, "aliases": ["质量", "覆盖率", "测试策略", "缺陷", "质量保障", "白盒"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "测试开发能力", "prompt": "考察自研测试框架/平台、提升测试效率的工程能力，而非只写用例。", "weight": 9 },
+    { "name": "自动化覆盖", "prompt": "考察 UI/接口/性能自动化的设计、覆盖率与稳定性。", "weight": 8 },
+    { "name": "质量体系", "prompt": "考察测试策略、质量门禁、缺陷预防等质量保障体系的建设。", "weight": 8 },
+    { "name": "技术深度", "prompt": "考察对被测系统架构的理解、白盒测试与性能瓶颈定位能力。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出测试工程化与效能平台建设能力，用自动化覆盖率、缺陷拦截率、测试效率提升等指标量化，强调质量体系设计而非单纯执行测试。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调测试平台/框架自研、自动化覆盖率、效率提升、缺陷拦截数据。" },
+      { "section": "experience", "emphasis": "突出质量体系建设、测试左移、效能工具推动的主导贡献。" },
+      { "section": "skills", "emphasis": "按自动化测试、测试开发语言、平台工具、质量体系分层组织。" }
+    ],
+    "keywords": ["测试开发", "自动化测试", "测试平台", "覆盖率", "质量门禁", "接口测试", "性能压测", "测试左移"]
+  }
+}

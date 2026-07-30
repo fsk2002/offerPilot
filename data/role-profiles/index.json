@@ -1,0 +1,51 @@
+{
+  "categories": [
+    {
+      "name": "技术类",
+      "families": [
+        {
+          "name": "前端方向",
+          "roles": [
+            { "id": "frontend-engineer", "name": "前端开发工程师" },
+            { "id": "mobile-engineer", "name": "移动端工程师" }
+          ]
+        },
+        {
+          "name": "后端方向",
+          "roles": [
+            { "id": "backend-java", "name": "Java 后端工程师" },
+            { "id": "backend-go", "name": "Go 后端工程师" }
+          ]
+        },
+        {
+          "name": "全栈方向",
+          "roles": [
+            { "id": "fullstack", "name": "全栈开发工程师" }
+          ]
+        },
+        {
+          "name": "AI / 数据方向",
+          "roles": [
+            { "id": "ai-engineer", "name": "AI 应用研发工程师" },
+            { "id": "ml-engineer", "name": "算法 / 机器学习工程师" },
+            { "id": "data-engineer", "name": "大数据开发工程师" },
+            { "id": "data-analyst", "name": "数据分析师" }
+          ]
+        },
+        {
+          "name": "基础架构方向",
+          "roles": [
+            { "id": "devops", "name": "DevOps / SRE 工程师" },
+            { "id": "cloud-native", "name": "云原生开发工程师" }
+          ]
+        },
+        {
+          "name": "测试开发方向",
+          "roles": [
+            { "id": "sdet", "name": "测试开发工程师" }
+          ]
+        }
+      ]
+    }
+  ]
+}

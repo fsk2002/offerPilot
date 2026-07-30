@@ -1,0 +1,30 @@
+{
+  "id": "data-analyst",
+  "name": "数据分析师",
+  "family": "AI / 数据方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "SQL", "weight": 10, "aliases": ["sql", "mysql", "hive sql", "查询"], "required": true },
+    { "name": "数据分析", "weight": 9, "aliases": ["数据分析", "data analysis", "指标", "报表", "洞察"], "required": true },
+    { "name": "Python/R", "weight": 7, "aliases": ["python", "pandas", "numpy", "r 语言", "r语言"], "required": false },
+    { "name": "统计分析", "weight": 8, "aliases": ["统计", "假设检验", "ab test", "abtest", "a/b", "显著性", "回归"], "required": false },
+    { "name": "可视化", "weight": 7, "aliases": ["可视化", "tableau", "powerbi", "power bi", "帆软", "看板", "dashboard", "bi"], "required": false },
+    { "name": "业务分析", "weight": 8, "aliases": ["业务", "增长", "留存", "转化", "漏斗", "用户画像", "指标体系"], "required": false },
+    { "name": "Excel/建模", "weight": 5, "aliases": ["excel", "数据建模", "指标建模"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "分析方法论", "prompt": "考察指标体系搭建、归因分析、AB 实验设计等分析方法论的掌握。", "weight": 9 },
+    { "name": "SQL 与数据处理", "prompt": "考察复杂 SQL、数据清洗、口径对齐的实操能力。", "weight": 8 },
+    { "name": "业务洞察", "prompt": "考察从数据中发现业务问题、驱动决策的洞察力，而非只出报表。", "weight": 9 },
+    { "name": "表达与影响", "prompt": "考察分析结论的可视化表达与推动业务落地的沟通能力。", "weight": 6 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出数据驱动业务决策的洞察力与方法论，用业务指标提升、AB 实验结论量化，强调指标体系搭建与分析结论的落地影响。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调分析框架、AB 实验设计、指标体系、由分析驱动的业务提升。" },
+      { "section": "experience", "emphasis": "突出数据洞察推动决策、指标体系建设、跨部门影响力。" },
+      { "section": "skills", "emphasis": "按 SQL/数据处理、统计方法、可视化工具、业务分析分层组织。" }
+    ],
+    "keywords": ["指标体系", "归因分析", "AB 实验", "数据洞察", "SQL", "留存转化", "可视化", "业务增长"]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "frontend-engineer",
+  "name": "前端开发工程师",
+  "family": "前端方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "JavaScript", "weight": 10, "aliases": ["javascript", "js", "es6", "ecmascript"], "required": true },
+    { "name": "TypeScript", "weight": 9, "aliases": ["typescript", "ts"], "required": true },
+    { "name": "React", "weight": 9, "aliases": ["react", "react.js", "reactjs"], "required": false },
+    { "name": "Vue", "weight": 8, "aliases": ["vue", "vue.js", "vuejs"], "required": false },
+    { "name": "CSS", "weight": 8, "aliases": ["css", "css3", "scss", "sass", "less", "tailwind"], "required": true },
+    { "name": "HTML", "weight": 7, "aliases": ["html", "html5"], "required": true },
+    { "name": "Webpack", "weight": 6, "aliases": ["webpack"], "required": false },
+    { "name": "Vite", "weight": 6, "aliases": ["vite"], "required": false },
+    { "name": "Next.js", "weight": 7, "aliases": ["next", "next.js", "nextjs"], "required": false },
+    { "name": "浏览器/性能优化", "weight": 8, "aliases": ["浏览器", "性能优化", "首屏", "web vitals", "lighthouse", "渲染优化"], "required": false },
+    { "name": "工程化", "weight": 6, "aliases": ["工程化", "微前端", "monorepo", "babel", "eslint"], "required": false },
+    { "name": "Node.js", "weight": 5, "aliases": ["node", "node.js", "nodejs"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "框架深入度", "prompt": "考察对 React/Vue 的渲染机制、状态管理、组件设计模式的理解深度，是否停留在 API 调用层面。", "weight": 9 },
+    { "name": "工程化能力", "prompt": "考察构建工具、模块化、微前端、性能优化等工程实践经验。", "weight": 7 },
+    { "name": "性能与体验", "prompt": "考察首屏加载、渲染性能、Web Vitals 等用户体验优化的实际落地经验。", "weight": 8 },
+    { "name": "跨端与协作", "prompt": "考察与后端/设计的接口协作、跨浏览器兼容、响应式布局能力。", "weight": 6 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出对前端框架底层机制的理解与工程化落地能力，用性能指标和用户体验数据量化成果，强调组件复用性、可维护性和团队协作。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调组件设计、状态管理方案、性能优化的具体指标（首屏时间、包体积下降等）。" },
+      { "section": "experience", "emphasis": "突出前端架构决策、工程化推动、跨团队协作中的技术影响力。" },
+      { "section": "skills", "emphasis": "按框架、工程化、性能、可视化分层组织，突出精通的技术栈。" }
+    ],
+    "keywords": ["组件化", "状态管理", "性能优化", "工程化", "首屏", "可复用", "响应式", "TypeScript"]
+  }
+}

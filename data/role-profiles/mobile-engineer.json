@@ -1,0 +1,31 @@
+{
+  "id": "mobile-engineer",
+  "name": "移动端工程师",
+  "family": "前端方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "iOS/Swift", "weight": 8, "aliases": ["ios", "swift", "objective-c", "objc", "swiftui"], "required": false },
+    { "name": "Android/Kotlin", "weight": 8, "aliases": ["android", "kotlin", "jetpack", "jetpack compose"], "required": false },
+    { "name": "Flutter", "weight": 8, "aliases": ["flutter", "dart"], "required": false },
+    { "name": "React Native", "weight": 8, "aliases": ["react native", "rn", "reactnative"], "required": false },
+    { "name": "移动端性能优化", "weight": 8, "aliases": ["卡顿", "启动优化", "包体积", "内存优化", "帧率", "fps"], "required": false },
+    { "name": "JavaScript", "weight": 6, "aliases": ["javascript", "js", "typescript", "ts"], "required": false },
+    { "name": "客户端架构", "weight": 7, "aliases": ["组件化", "路由", "热更新", "跨端", "架构"], "required": false },
+    { "name": "网络与存储", "weight": 6, "aliases": ["网络", "缓存", "sqlite", "离线", "断点续传"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "平台深入度", "prompt": "考察对 iOS/Android/跨端框架的底层机制（生命周期、渲染、内存管理）的理解深度。", "weight": 9 },
+    { "name": "性能优化", "prompt": "考察启动速度、卡顿、包体积、内存等移动端特有性能问题的排查与优化经验。", "weight": 8 },
+    { "name": "工程与架构", "prompt": "考察客户端组件化、热更新、跨端方案的架构设计能力。", "weight": 7 },
+    { "name": "体验打磨", "prompt": "考察对交互流畅度、机型适配、弱网体验的关注与实践。", "weight": 6 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出对移动平台底层机制的掌握与性能优化的量化成果，强调复杂交互、跨端方案和端上工程化能力。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调启动/卡顿/包体积等性能指标改善、复杂交互实现、跨端架构。" },
+      { "section": "experience", "emphasis": "突出客户端架构演进、性能专项、多端一致性的推动。" },
+      { "section": "skills", "emphasis": "按平台（iOS/Android/跨端）与性能优化分层组织。" }
+    ],
+    "keywords": ["启动优化", "包体积", "卡顿", "帧率", "跨端", "组件化", "热更新", "内存优化"]
+  }
+}

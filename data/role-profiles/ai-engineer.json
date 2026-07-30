@@ -1,0 +1,31 @@
+{
+  "id": "ai-engineer",
+  "name": "AI 应用研发工程师",
+  "family": "AI / 数据方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "LLM/大模型", "weight": 10, "aliases": ["llm", "大模型", "大语言模型", "gpt", "claude", "通义", "文心"], "required": true },
+    { "name": "Prompt 工程", "weight": 9, "aliases": ["prompt", "提示词", "prompt engineering", "few-shot", "cot"], "required": false },
+    { "name": "RAG", "weight": 9, "aliases": ["rag", "检索增强", "向量数据库", "向量检索", "embedding", "faiss", "milvus", "pinecone"], "required": false },
+    { "name": "Agent", "weight": 8, "aliases": ["agent", "智能体", "function calling", "tool use", "langchain", "langgraph"], "required": false },
+    { "name": "Python", "weight": 8, "aliases": ["python", "py"], "required": true },
+    { "name": "模型微调", "weight": 6, "aliases": ["微调", "fine-tune", "finetune", "lora", "sft", "peft"], "required": false },
+    { "name": "工程化落地", "weight": 8, "aliases": ["api", "推理", "部署", "流式", "streaming", "并发", "缓存"], "required": false },
+    { "name": "评估与优化", "weight": 7, "aliases": ["评估", "eval", "幻觉", "召回", "准确率", "效果优化"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "LLM 应用深度", "prompt": "考察对 LLM 能力边界、Prompt 设计、RAG/Agent 架构的理解与落地经验。", "weight": 9 },
+    { "name": "工程化能力", "prompt": "考察将 AI 能力工程化为稳定服务的能力：推理优化、容错、流式、成本控制。", "weight": 8 },
+    { "name": "效果与评估", "prompt": "考察对生成质量、幻觉、召回率的评估方法与迭代优化经验。", "weight": 8 },
+    { "name": "业务理解", "prompt": "考察 AI 能力与真实业务场景结合、解决实际问题的产品思维。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出 LLM 应用从 0 到 1 的落地与工程化能力，强调 RAG/Agent 架构设计、Prompt 与效果迭代，用准确率/召回/成本/延迟等指标量化。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调 RAG/Agent 架构、Prompt 迭代、效果评估指标、推理性能与成本优化。" },
+      { "section": "experience", "emphasis": "突出 AI 应用落地闭环、效果调优、工程稳定性的主导贡献。" },
+      { "section": "skills", "emphasis": "按大模型能力、RAG/向量检索、Agent 框架、工程化分层组织。" }
+    ],
+    "keywords": ["LLM", "RAG", "Agent", "Prompt 工程", "向量检索", "推理优化", "效果评估", "工程化"]
+  }
+}

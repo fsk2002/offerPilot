@@ -1,0 +1,31 @@
+{
+  "id": "fullstack",
+  "name": "全栈开发工程师",
+  "family": "全栈方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "JavaScript/TypeScript", "weight": 9, "aliases": ["javascript", "js", "typescript", "ts", "es6"], "required": true },
+    { "name": "React/Vue", "weight": 8, "aliases": ["react", "vue", "react.js", "vue.js", "前端框架"], "required": false },
+    { "name": "Node.js", "weight": 9, "aliases": ["node", "node.js", "nodejs", "express", "nestjs", "koa"], "required": false },
+    { "name": "后端语言", "weight": 7, "aliases": ["java", "go", "golang", "python", "spring"], "required": false },
+    { "name": "数据库", "weight": 8, "aliases": ["mysql", "postgresql", "postgres", "mongodb", "redis", "sql", "prisma"], "required": true },
+    { "name": "API 设计", "weight": 8, "aliases": ["api", "restful", "rest", "graphql", "接口设计"], "required": false },
+    { "name": "全链路", "weight": 8, "aliases": ["全栈", "full stack", "fullstack", "前后端", "全链路", "端到端"], "required": false },
+    { "name": "DevOps 基础", "weight": 6, "aliases": ["docker", "ci/cd", "部署", "nginx", "云服务"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "全链路能力", "prompt": "考察从前端到后端到数据库的端到端交付能力，是否理解各层如何协同。", "weight": 9 },
+    { "name": "API 与数据流", "prompt": "考察接口契约设计、前后端数据流、状态一致性的设计能力。", "weight": 8 },
+    { "name": "技术广度与取舍", "prompt": "考察在多技术栈间做合理选型与取舍的判断力，避免样样通样样松。", "weight": 8 },
+    { "name": "独立交付", "prompt": "考察独立负责完整功能模块、快速迭代验证的能力。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出端到端独立交付能力与前后端全链路的技术视野，强调 API 契约设计、数据流一致性和快速迭代验证。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调从需求到上线的完整闭环、前后端协同设计、独立负责的模块。" },
+      { "section": "experience", "emphasis": "突出全链路技术决策、跨层问题定位、快速交付的贡献。" },
+      { "section": "skills", "emphasis": "前端、后端、数据库、部署分层呈现，体现广度与深度的平衡。" }
+    ],
+    "keywords": ["全栈", "全链路", "端到端", "API 契约", "前后端", "独立交付", "数据流"]
+  }
+}

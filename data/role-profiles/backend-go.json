@@ -1,0 +1,32 @@
+{
+  "id": "backend-go",
+  "name": "Go 后端工程师",
+  "family": "后端方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "Go", "weight": 10, "aliases": ["golang", "go 语言", "go语言", "goroutine"], "required": true },
+    { "name": "微服务", "weight": 9, "aliases": ["微服务", "microservice", "microservices", "grpc", "rpc", "go-zero", "kratos"], "required": false },
+    { "name": "MySQL", "weight": 7, "aliases": ["mysql", "sql", "gorm"], "required": true },
+    { "name": "Redis", "weight": 8, "aliases": ["redis", "缓存"], "required": false },
+    { "name": "高并发", "weight": 9, "aliases": ["高并发", "high concurrency", "qps", "并发", "channel", "限流", "熔断"], "required": false },
+    { "name": "消息队列", "weight": 7, "aliases": ["kafka", "rabbitmq", "rocketmq", "nsq", "消息队列", "mq"], "required": false },
+    { "name": "分布式", "weight": 8, "aliases": ["分布式", "distributed", "etcd", "一致性", "raft"], "required": false },
+    { "name": "云原生", "weight": 7, "aliases": ["kubernetes", "k8s", "docker", "云原生", "service mesh"], "required": false },
+    { "name": "性能优化", "weight": 7, "aliases": ["pprof", "性能优化", "gc", "内存优化", "调优"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "语言深度", "prompt": "考察对 Go 并发模型（goroutine/channel）、GMP 调度、内存管理的底层理解。", "weight": 9 },
+    { "name": "高并发与分布式", "prompt": "考察高并发服务设计、分布式一致性、限流熔断等实战经验。", "weight": 9 },
+    { "name": "云原生能力", "prompt": "考察容器化、K8s、微服务框架、Service Mesh 的实践经验。", "weight": 7 },
+    { "name": "系统设计", "prompt": "考察服务拆分、稳定性保障、性能压测与调优能力。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出 Go 的高并发优势与云原生生态实践，用性能压测数据、资源利用率量化，强调对并发模型和分布式的理解。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调并发设计、QPS/延迟/资源占用指标、云原生部署方案。" },
+      { "section": "experience", "emphasis": "突出高并发服务、微服务架构、稳定性治理的主导贡献。" },
+      { "section": "skills", "emphasis": "按语言、微服务框架、中间件、云原生分层组织。" }
+    ],
+    "keywords": ["高并发", "goroutine", "微服务", "云原生", "gRPC", "分布式", "性能优化", "稳定性"]
+  }
+}

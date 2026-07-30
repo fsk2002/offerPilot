@@ -1,0 +1,31 @@
+{
+  "id": "ml-engineer",
+  "name": "算法 / 机器学习工程师",
+  "family": "AI / 数据方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "机器学习", "weight": 10, "aliases": ["机器学习", "machine learning", "ml", "监督学习", "特征工程"], "required": true },
+    { "name": "深度学习", "weight": 9, "aliases": ["深度学习", "deep learning", "dl", "神经网络", "cnn", "rnn", "transformer"], "required": false },
+    { "name": "PyTorch/TensorFlow", "weight": 9, "aliases": ["pytorch", "tensorflow", "tf", "keras", "torch"], "required": false },
+    { "name": "Python", "weight": 9, "aliases": ["python", "numpy", "pandas", "scikit-learn", "sklearn"], "required": true },
+    { "name": "数学基础", "weight": 7, "aliases": ["概率", "统计", "线性代数", "最优化", "数学"], "required": false },
+    { "name": "模型部署", "weight": 7, "aliases": ["部署", "推理", "serving", "onnx", "tensorrt", "模型上线"], "required": false },
+    { "name": "特征工程", "weight": 8, "aliases": ["特征工程", "feature", "特征", "样本", "数据清洗"], "required": false },
+    { "name": "领域方向", "weight": 6, "aliases": ["nlp", "cv", "计算机视觉", "推荐系统", "自然语言处理", "推荐"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "算法深度", "prompt": "考察对机器学习/深度学习原理、模型选型、调参的理解深度，而非仅调库。", "weight": 9 },
+    { "name": "工程落地", "prompt": "考察从数据、训练到模型部署上线的完整工程能力与效果指标。", "weight": 8 },
+    { "name": "数据与特征", "prompt": "考察特征工程、样本构造、数据质量把控的实战能力。", "weight": 8 },
+    { "name": "业务效果", "prompt": "考察模型对业务指标（点击率、转化、准确率）的实际提升。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出算法原理理解与模型落地的业务效果，用离线/在线指标（AUC、准确率、业务提升）量化，强调特征工程与工程化部署。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调问题建模、模型选型与调优、离线在线指标、业务效果提升。" },
+      { "section": "experience", "emphasis": "突出算法方案主导、数据闭环建设、模型迭代的贡献。" },
+      { "section": "skills", "emphasis": "按机器学习/深度学习、框架、领域方向、工程部署分层组织。" }
+    ],
+    "keywords": ["机器学习", "深度学习", "特征工程", "模型调优", "AUC", "PyTorch", "业务指标", "模型部署"]
+  }
+}

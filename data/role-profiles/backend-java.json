@@ -1,0 +1,33 @@
+{
+  "id": "backend-java",
+  "name": "Java 后端工程师",
+  "family": "后端方向",
+  "category": "技术类",
+  "typicalSkills": [
+    { "name": "Java", "weight": 10, "aliases": ["java", "jvm"], "required": true },
+    { "name": "Spring", "weight": 9, "aliases": ["spring", "spring boot", "springboot", "spring cloud", "springcloud"], "required": true },
+    { "name": "MySQL", "weight": 8, "aliases": ["mysql", "innodb", "sql"], "required": true },
+    { "name": "Redis", "weight": 8, "aliases": ["redis", "缓存"], "required": false },
+    { "name": "微服务", "weight": 8, "aliases": ["微服务", "microservice", "microservices", "dubbo", "grpc", "rpc"], "required": false },
+    { "name": "消息队列", "weight": 7, "aliases": ["kafka", "rabbitmq", "rocketmq", "消息队列", "mq"], "required": false },
+    { "name": "分布式", "weight": 8, "aliases": ["分布式", "distributed", "一致性", "分库分表", "cap"], "required": false },
+    { "name": "高并发", "weight": 8, "aliases": ["高并发", "high concurrency", "qps", "限流", "熔断"], "required": false },
+    { "name": "JVM 调优", "weight": 7, "aliases": ["jvm", "gc", "垃圾回收", "内存调优", "性能调优"], "required": false },
+    { "name": "MyBatis", "weight": 5, "aliases": ["mybatis", "orm", "jpa", "hibernate"], "required": false }
+  ],
+  "evaluationDimensions": [
+    { "name": "语言与框架深度", "prompt": "考察对 JVM、Spring 生态、并发编程的底层理解，而非仅会用注解。", "weight": 9 },
+    { "name": "分布式与高并发", "prompt": "考察分布式一致性、缓存、消息队列、限流熔断等高并发场景的实战经验。", "weight": 9 },
+    { "name": "数据库能力", "prompt": "考察 SQL 优化、索引设计、分库分表、事务隔离等数据库深度。", "weight": 8 },
+    { "name": "系统设计", "prompt": "考察服务拆分、容量评估、稳定性保障等系统设计能力。", "weight": 7 }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出高并发、分布式场景下的系统设计与稳定性保障，用 QPS、延迟、可用性等指标量化，强调对 JVM/Spring 底层机制的掌握。",
+    "perSection": [
+      { "section": "projects", "emphasis": "强调系统吞吐/延迟指标、分布式一致性方案、缓存与消息队列的落地。" },
+      { "section": "experience", "emphasis": "突出核心链路稳定性、服务治理、高并发架构演进的主导角色。" },
+      { "section": "skills", "emphasis": "按语言框架、中间件、数据库、分布式分层，突出高并发相关栈。" }
+    ],
+    "keywords": ["高并发", "分布式", "微服务", "QPS", "缓存", "消息队列", "稳定性", "JVM"]
+  }
+}
