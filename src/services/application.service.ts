@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { getResume } from "@/services/resume.service";
-import { quantitativeMatch } from "@/lib/matching";
+import { quantitativeMatch, compareRoles } from "@/lib/matching";
 import { qualitativeMatch } from "@/services/ai.service";
+import { getProfiles } from "@/lib/role-profiles";
+import type { MatchReport } from "@/types/application";
 
 interface CreateAnalysisInput {
   resumeId: string;
@@ -27,8 +29,24 @@ export async function createAnalysis(userId: string, input: CreateAnalysisInput)
     );
   }
 
-  const quant = quantitativeMatch(rawText, jdText);
-  const report = await qualitativeMatch({ resumeText: rawText, jdText, targetRoles, quant });
+  // targetRoles 是画像 ID 数组；取到的画像里第一个为主岗，驱动量化 + LLM
+  const profiles = await getProfiles(targetRoles);
+  const primary = profiles[0];
+
+  const quant = quantitativeMatch(rawText, jdText, primary);
+  const report = await qualitativeMatch({
+    resumeText: rawText,
+    jdText,
+    targetRoles,
+    quant,
+    profile: primary,
+  });
+
+  // 异岗对比：所选各岗位都跑一次量化分（毫秒级），合入报告
+  const finalReport: MatchReport =
+    profiles.length > 0
+      ? { ...report, roleComparison: compareRoles(rawText, jdText, profiles) }
+      : report;
 
   const matchScore = Math.round(quant.score * QUANT_WEIGHT + report.overall * QUAL_WEIGHT);
 
@@ -41,7 +59,7 @@ export async function createAnalysis(userId: string, input: CreateAnalysisInput)
       matchScore,
       matchScoreQuant: quant.score,
       matchScoreQual: report.overall,
-      matchReport: report as object,
+      matchReport: finalReport as object,
       status: "pending",
     },
   });

@@ -4,6 +4,7 @@ import { loadPrompt } from "@/lib/prompts";
 import type { QuantMatchResult } from "@/lib/matching";
 import type { MatchReport } from "@/types/application";
 import type { ResumeContent } from "@/types/resume";
+import type { RoleProfile } from "@/types/role-profile";
 
 const MODEL = process.env.LLM_MODEL || "gpt-4o-mini";
 
@@ -56,6 +57,15 @@ interface QualitativeInput {
   jdText: string;
   targetRoles: string[];
   quant: QuantMatchResult;
+  profile?: RoleProfile; // 主岗画像；有则用其维度/叙事驱动 LLM 评估
+}
+
+// 把画像的叙事策略 + 评估维度拼成给 LLM 的参考文本
+function buildProfileNarrative(profile: RoleProfile): string {
+  const dims = profile.evaluationDimensions
+    .map((d) => `- ${d.name}：${d.prompt}`)
+    .join("\n");
+  return `整体叙事策略：${profile.narrativeStrategy.overall}\n关注维度：\n${dims}`;
 }
 
 /**
@@ -68,8 +78,15 @@ export async function qualitativeMatch(input: QualitativeInput): Promise<MatchRe
   }
 
   try {
+    const targetRoleName =
+      input.profile?.name || input.targetRoles.join("、") || "未指定";
+    const roleProfileNarrative = input.profile
+      ? buildProfileNarrative(input.profile)
+      : "未指定具体岗位画像，请基于 JD 通用评估。";
+
     const prompt = await loadPrompt("match-analysis", {
-      targetRoles: input.targetRoles.join("、") || "未指定",
+      targetRoleName,
+      roleProfileNarrative,
       resumeText: input.resumeText,
       jdText: input.jdText,
       quantScore: String(input.quant.score),

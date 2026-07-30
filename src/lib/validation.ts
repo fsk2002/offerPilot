@@ -23,7 +23,8 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export const createAnalysisSchema = z.object({
   resumeId: z.string().min(1, "请选择简历"),
   jdText: z.string().min(20, "JD 内容太短，请粘贴完整的职位描述"),
-  targetRoles: z.array(z.string()).optional(),
+  // 目标岗位画像 ID 数组，最多 3 个（PRD §6.1）
+  targetRoles: z.array(z.string()).max(3, "最多选择 3 个目标岗位").optional(),
 });
 
 export type CreateAnalysisInput = z.infer<typeof createAnalysisSchema>;
