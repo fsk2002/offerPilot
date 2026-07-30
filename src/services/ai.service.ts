@@ -35,11 +35,20 @@ const reportSchema = z.object({
 });
 
 /**
- * 是否配置了可用的真实 LLM key。占位符或空值时返回 false，走 mock。
+ * 是否配置了可用的真实 LLM。key 和 model(接入点/模型名) 都需非占位符。
+ * 未配置时走 mock；已配置但调用失败则报错，不用假数据冒充真实分析。
  */
 export function isLLMConfigured(): boolean {
   const key = process.env.LLM_API_KEY;
-  return !!key && key !== "sk-your-api-key" && key.length > 20;
+  const model = process.env.LLM_MODEL;
+  const keyPlaceholders = ["sk-your-api-key", "your-api-key", ""];
+  return (
+    !!key &&
+    !keyPlaceholders.includes(key) &&
+    key.length > 20 &&
+    !!model &&
+    model !== "ep-your-endpoint-id"
+  );
 }
 
 interface QualitativeInput {
@@ -79,9 +88,10 @@ export async function qualitativeMatch(input: QualitativeInput): Promise<MatchRe
     if (!raw) throw new AIServiceError("AI_EMPTY", "AI 返回为空");
     return reportSchema.parse(JSON.parse(raw));
   } catch (e) {
-    // LLM 或解析失败时降级为 mock，不阻断整条分析链路
-    console.error("qualitativeMatch failed, falling back to mock:", e);
-    return mockReport(input.quant);
+    // 已配置真实 LLM 却失败：报错而非返回假数据，避免用户误以为是真实分析
+    console.error("qualitativeMatch failed:", e);
+    if (e instanceof AIServiceError) throw e;
+    throw new AIServiceError("AI_SERVICE_ERROR", "AI 分析服务暂时不可用，请稍后重试");
   }
 }
 

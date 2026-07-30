@@ -6,6 +6,7 @@ import {
   ApplicationError,
 } from "@/services/application.service";
 import { ResumeError } from "@/services/resume.service";
+import { AIServiceError } from "@/services/ai.service";
 import { createAnalysisSchema } from "@/lib/validation";
 import { success, error } from "@/services/api-helper";
 
@@ -38,6 +39,9 @@ export async function POST(request: NextRequest) {
     const application = await createAnalysis(payload.userId, parsed.data);
     return success(application, 201);
   } catch (e) {
+    if (e instanceof AIServiceError) {
+      return error(e.code, e.message, 502);
+    }
     if (e instanceof ApplicationError || e instanceof ResumeError) {
       return error(e.code, e.message, e.code === "NOT_FOUND" ? 404 : 400);
     }
