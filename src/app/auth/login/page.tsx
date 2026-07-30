@@ -1,8 +1,3 @@
-async function getError(url: string): Promise<string | null> {
-  const searchParams = new URL(url).searchParams;
-  return searchParams.get("error") || null;
-}
-
 export default async function LoginPage({
   searchParams,
 }: {

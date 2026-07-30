@@ -5,7 +5,6 @@ import {
   signToken,
   JwtPayload,
 } from "@/lib/auth";
-import type { ApiResponse } from "@/types";
 
 export type AuthResult = {
   user: { id: string; email: string; name: string; avatar: string | null };

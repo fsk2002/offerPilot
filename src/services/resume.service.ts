@@ -14,17 +14,22 @@ export async function uploadResume(
   version: number;
   content: ResumeContent | null;
 }> {
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  // Validate file type
-  if (!file.name.endsWith(".pdf")) {
+  // Validate extension and MIME type before reading the file into memory
+  if (!file.name.toLowerCase().endsWith(".pdf") || file.type !== "application/pdf") {
     throw new ResumeError("INVALID_FILE", "仅支持 PDF 格式的简历");
   }
 
-  // Validate file size (10MB)
+  // Reject oversized files up front, before buffering
   const MAX_SIZE = parseInt(process.env.MAX_FILE_SIZE || "10485760", 10);
-  if (buffer.length > MAX_SIZE) {
+  if (file.size > MAX_SIZE) {
     throw new ResumeError("FILE_TOO_LARGE", "文件大小不能超过 10MB");
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Verify the PDF magic bytes so a renamed non-PDF can't slip through
+  if (buffer.subarray(0, 5).toString("latin1") !== "%PDF-") {
+    throw new ResumeError("INVALID_FILE", "文件内容不是有效的 PDF");
   }
 
   // Save file

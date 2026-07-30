@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface User {
   id: string;
@@ -62,7 +63,7 @@ export default function DashboardPage() {
 
         {/* Quick actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
+          <Link
             href="/resumes"
             className="p-6 border border-border rounded-xl hover:border-blue-300 transition-colors space-y-2"
           >
@@ -70,8 +71,8 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground">
               上传、编辑、管理你的简历版本
             </p>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/applications"
             className="p-6 border border-border rounded-xl hover:border-blue-300 transition-colors space-y-2"
           >
@@ -79,7 +80,7 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground">
               查看投递分析、匹配度报告和面试题
             </p>
-          </a>
+          </Link>
         </div>
 
         {/* Stats */}

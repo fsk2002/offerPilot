@@ -19,24 +19,37 @@ export default function ResumesPage() {
   const [uploading, setUploading] = useState(false);
 
   const fetchResumes = useCallback(async () => {
-    try {
-      const res = await fetch("/api/resumes");
-      const data = await res.json();
-      if (!data.success) {
-        router.push("/auth/login");
-        return;
-      }
-      setResumes(data.data || []);
-    } catch {
+    const res = await fetch("/api/resumes");
+    const data = await res.json();
+    if (!data.success) {
       router.push("/auth/login");
-    } finally {
-      setLoading(false);
+      return;
     }
+    setResumes(data.data || []);
   }, [router]);
 
   useEffect(() => {
-    fetchResumes();
-  }, [fetchResumes]);
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/resumes");
+        const data = await res.json();
+        if (!active) return;
+        if (!data.success) {
+          router.push("/auth/login");
+          return;
+        }
+        setResumes(data.data || []);
+      } catch {
+        if (active) router.push("/auth/login");
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];

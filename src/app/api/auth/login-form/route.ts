@@ -1,32 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { login, AuthError } from "@/services/auth.service";
 import { setAuthCookieOnResponse } from "@/lib/auth";
+import { loginSchema } from "@/lib/validation";
+
+function redirectWithError(request: NextRequest, message: string) {
+  return NextResponse.redirect(
+    new URL(`/auth/login?error=${encodeURIComponent(message)}`, request.url),
+    302
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const parsed = loginSchema.safeParse({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    });
 
-    if (!email || !password) {
-      return NextResponse.redirect(new URL("/auth/login?error=请输入邮箱和密码", request.url), 302);
+    if (!parsed.success) {
+      return redirectWithError(request, parsed.error.errors[0]?.message || "参数错误");
     }
 
-    const result = await login(email, password);
+    const result = await login(parsed.data.email, parsed.data.password);
 
     const response = NextResponse.redirect(new URL("/dashboard", request.url), 302);
     setAuthCookieOnResponse(response, result.token);
     return response;
   } catch (e) {
     if (e instanceof AuthError) {
-      return NextResponse.redirect(
-        new URL(`/auth/login?error=${encodeURIComponent(e.message)}`, request.url),
-        302
-      );
+      return redirectWithError(request, e.message);
     }
-    return NextResponse.redirect(
-      new URL("/auth/login?error=登录失败，请稍后重试", request.url),
-      302
-    );
+    return redirectWithError(request, "登录失败，请稍后重试");
   }
 }

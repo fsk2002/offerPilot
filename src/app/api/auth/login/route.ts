@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { login, AuthError } from "@/services/auth.service";
 import { setAuthCookieOnResponse } from "@/lib/auth";
-
-const schema = z.object({
-  email: z.string().email("请输入有效的邮箱地址"),
-  password: z.string().min(1, "请输入密码"),
-});
+import { loginSchema } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const parsed = schema.safeParse(body);
+    const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {
       const msg = parsed.error.errors[0]?.message || "参数错误";
