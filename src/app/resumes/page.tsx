@@ -17,6 +17,7 @@ export default function ResumesPage() {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchResumes = useCallback(async () => {
     const res = await fetch("/api/resumes");
@@ -83,6 +84,30 @@ export default function ResumesPage() {
     maxSize: 10485760,
   });
 
+  const handleDelete = async (id: string, fileName: string) => {
+    if (
+      !confirm(
+        `确定删除「${fileName}」吗？\n\n该简历关联的投递分析记录也会一并删除，此操作不可撤销。`
+      )
+    ) {
+      return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/resumes/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setResumes((prev) => prev.filter((r) => r.id !== id));
+      } else {
+        alert(data.error?.message || "删除失败");
+      }
+    } catch {
+      alert("删除失败，请稍后重试");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -146,9 +171,19 @@ export default function ResumesPage() {
                       {new Date(resume.createdAt).toLocaleDateString("zh-CN")}
                     </p>
                   </div>
-                  <span className="text-xs px-2 py-1 bg-secondary rounded-full">
-                    {resume.source === "upload" ? "已上传" : resume.source}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs px-2 py-1 bg-secondary rounded-full">
+                      {resume.source === "upload" ? "已上传" : resume.source}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(resume.id, resume.fileName)}
+                      disabled={deletingId === resume.id}
+                      className="text-sm text-red-500 hover:text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deletingId === resume.id ? "删除中..." : "删除"}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

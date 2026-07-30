@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { saveFile } from "@/lib/file-storage";
-import { parseResume } from "@/services/ai.service";
+import { saveFile, deleteFile } from "@/lib/file-storage";
 import type { ResumeContent } from "@/types/resume";
 
 // ============================================================
@@ -36,7 +35,7 @@ export async function uploadResume(
   // Save file
   const { filePath, fileSize } = await saveFile(buffer, file.name);
 
-  // Extract text from PDF (basic - will be enhanced with AI parsing)
+  // Extract text from PDF
   let rawText = "";
   try {
     const pdfParse = (await import("pdf-parse")).default;
@@ -46,10 +45,8 @@ export async function uploadResume(
     console.warn("PDF parse failed, saving without text:", e);
   }
 
-  // Structure the raw text into ResumeContent (mock-switchable LLM; null on failure)
-  const content = rawText ? await parseResume(rawText) : null;
-
-  // Create resume record
+  // 结构化解析（parseResume）依赖 LLM，耗时数十秒，不阻塞上传；
+  // 匹配分析用 rawText 即可，结构化留待后续按需触发。
   const resume = await prisma.resume.create({
     data: {
       fileName: file.name,
@@ -58,7 +55,6 @@ export async function uploadResume(
       version: 1,
       source: "upload",
       rawParsed: rawText ? { rawText } : undefined,
-      content: content ? (content as object) : undefined,
       userId,
     },
   });
@@ -102,6 +98,45 @@ export async function getResume(id: string, userId: string) {
   }
 
   return resume;
+}
+
+// ============================================================
+// Delete a resume and everything that depends on it (cascade).
+// 外键无 onDelete 规则，须手动按依赖顺序删：
+//   Interview → Application → 解除子简历 parentId → Resume（记录 + 文件）
+// 全程在一个事务里，避免删到一半留下悬挂引用。
+// ============================================================
+export async function deleteResume(id: string, userId: string): Promise<void> {
+  const resume = await prisma.resume.findFirst({ where: { id, userId } });
+  if (!resume) {
+    throw new ResumeError("NOT_FOUND", "简历不存在");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const apps = await tx.application.findMany({
+      where: { resumeId: id },
+      select: { id: true },
+    });
+    const appIds = apps.map((a) => a.id);
+
+    if (appIds.length > 0) {
+      await tx.interview.deleteMany({ where: { applicationId: { in: appIds } } });
+      await tx.application.deleteMany({ where: { id: { in: appIds } } });
+    }
+
+    // 该简历若是其他版本的 parent，先解除引用再删，避免自关联外键报错
+    await tx.resume.updateMany({ where: { parentId: id }, data: { parentId: null } });
+    await tx.resume.delete({ where: { id } });
+  });
+
+  // 记录删除成功后再删磁盘文件；删文件失败不回滚（文件残留可容忍，记录已清）
+  if (resume.filePath) {
+    try {
+      await deleteFile(resume.filePath);
+    } catch (e) {
+      console.warn("Resume file delete failed (record already removed):", e);
+    }
+  }
 }
 
 // ============================================================
