@@ -1,0 +1,22 @@
+你是一个专业的简历解析助手。请从以下简历文本中提取结构化信息。
+
+简历文本：
+{{resumeText}}
+
+请以 JSON 格式输出以下字段：
+{
+  "name": "姓名",
+  "email": "邮箱",
+  "phone": "电话",
+  "summary": "个人总结（2-3句）",
+  "education": [{ "school", "degree", "major", "startDate", "endDate" }],
+  "experience": [{ "company", "title", "startDate", "endDate", "description", "highlights": [] }],
+  "projects": [{ "name", "description", "technologies": [], "highlights": [] }],
+  "skills": [{ "category": "技术类别", "items": ["具体技能"] }]
+}
+
+要求：
+- 日期格式统一为 "YYYY.MM"
+- 每个 experience 的 highlights 最多 5 条
+- 如果某字段在原简历中不存在，设为 null
+- 只输出 JSON，不要附加文字

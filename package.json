@@ -1,0 +1,52 @@
+{
+  "name": "offerpilot",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build && prisma generate",
+    "start": "next start",
+    "lint": "eslint",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx scripts/seed-role-profiles.ts"
+  },
+  "dependencies": {
+    "next": "16.2.12",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "prisma": "^6",
+    "@prisma/client": "^6",
+    "zod": "^3",
+    "bcryptjs": "^2",
+    "jsonwebtoken": "^9",
+    "recharts": "^2",
+    "react-dropzone": "^14",
+    "dayjs": "^1",
+    "pdf-parse": "^1",
+    "openai": "^4",
+    "cheerio": "^1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "@types/bcryptjs": "^2",
+    "@types/jsonwebtoken": "^9",
+    "tsx": "^4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma",
+      "esbuild"
+    ]
+  }
+}

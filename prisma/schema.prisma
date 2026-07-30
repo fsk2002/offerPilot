@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  avatar    String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  resumes     Resume[]
+  applications Application[]
+  interviews  Interview[]
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  fileName  String
+  filePath  String?
+  fileSize  Int?
+  version   Int      @default(1)
+  source    String   @default("upload")
+  content   Json?
+  rawParsed Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  parentId  String?
+  parent    Resume?   @relation("ResumeVersion", fields: [parentId], references: [id])
+  children  Resume[]  @relation("ResumeVersion")
+  applications Application[]
+
+  @@index([userId])
+  @@index([parentId])
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  company   String?
+  position  String?
+  jdUrl     String?
+  jdText    String
+  jdSource  String   @default("manual")
+  jdParsed  Json?
+  targetRoles String[]
+  matchScore      Int?
+  matchReport     Json?
+  matchScoreQuant Int?
+  matchScoreQual  Int?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resumeId String
+  resume   Resume @relation(fields: [resumeId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  interviews Interview[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, status])
+  @@index([resumeId])
+}
+
+model Interview {
+  id        String   @id @default(cuid())
+  type      String
+  question  String
+  answer    String?
+  createdAt DateTime @default(now())
+  applicationId String
+  application Application @relation(fields: [applicationId], references: [id])
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+  @@index([applicationId])
+  @@index([userId])
+}
