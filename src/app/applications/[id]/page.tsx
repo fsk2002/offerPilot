@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { MatchReport } from "@/types/application";
+import RoleComparison from "@/components/analysis/RoleComparison";
 
 interface ApplicationDetail {
   id: string;
@@ -86,6 +87,11 @@ export default function ApplicationDetailPage() {
   }
 
   const report = app.matchReport;
+  // 优先用异岗对比里的中文岗位名；旧记录（targetRoles 为自由文本）回退到原文
+  const targetRoleLabel =
+    report?.roleComparison?.length
+      ? report.roleComparison.map((r) => r.roleName).join("、")
+      : app.targetRoles.join("、");
 
   return (
     <main className="min-h-screen p-8">
@@ -104,7 +110,7 @@ export default function ApplicationDetailPage() {
           </div>
           <div className="flex-1 space-y-1 text-sm text-muted-foreground">
             <p>简历：{app.resume.fileName}</p>
-            {app.targetRoles.length > 0 && <p>目标岗位：{app.targetRoles.join("、")}</p>}
+            {targetRoleLabel && <p>目标岗位：{targetRoleLabel}</p>}
             <p>量化分：{app.matchScoreQuant ?? "—"} · 质性分：{app.matchScoreQual ?? "—"}</p>
             <p>分析时间：{new Date(app.createdAt).toLocaleString("zh-CN")}</p>
           </div>
@@ -140,6 +146,11 @@ export default function ApplicationDetailPage() {
                 ))}
               </div>
             </section>
+
+            {/* 异岗评分对比 */}
+            {report.roleComparison && report.roleComparison.length > 0 && (
+              <RoleComparison roles={report.roleComparison} />
+            )}
 
             {/* 缺失项 */}
             {report.gaps.length > 0 && (
