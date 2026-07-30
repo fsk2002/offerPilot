@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+} from "recharts";
 import type { MatchReport } from "@/types/application";
 
 interface ApplicationDetail {
@@ -16,12 +24,6 @@ interface ApplicationDetail {
   status: string;
   createdAt: string;
   resume: { fileName: string };
-}
-
-function barColor(score: number): string {
-  if (score >= 75) return "bg-green-500";
-  if (score >= 50) return "bg-blue-500";
-  return "bg-orange-500";
 }
 
 const severityLabel: Record<string, string> = {
@@ -113,21 +115,30 @@ export default function ApplicationDetailPage() {
             {/* 维度评分 */}
             <section className="space-y-4">
               <h2 className="font-semibold text-lg">分维度评分</h2>
-              {report.dimensions.map((dim) => (
-                <div key={dim.name} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">{dim.name}</span>
-                    <span className="text-muted-foreground">{dim.score}</span>
-                  </div>
-                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${barColor(dim.score)}`}
-                      style={{ width: `${Math.max(0, Math.min(100, dim.score))}%` }}
+              <div className="w-full h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={report.dimensions}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
+                    <Radar
+                      dataKey="score"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
+                      fillOpacity={0.5}
                     />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="space-y-2">
+                {report.dimensions.map((dim) => (
+                  <div key={dim.name} className="text-sm">
+                    <span className="font-medium">{dim.name}</span>
+                    <span className="text-muted-foreground"> · {dim.score}</span>
+                    <p className="text-xs text-muted-foreground">{dim.details}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{dim.details}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </section>
 
             {/* 缺失项 */}
