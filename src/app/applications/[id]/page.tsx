@@ -13,11 +13,14 @@ import {
 } from "recharts";
 import type { MatchReport } from "@/types/application";
 import RoleComparison from "@/components/analysis/RoleComparison";
+import { APPLICATION_STATUSES, statusLabel, statusColor } from "@/lib/application-status";
 
 interface ApplicationDetail {
   id: string;
   jdText: string;
   targetRoles: string[];
+  company: string | null;
+  position: string | null;
   matchScore: number | null;
   matchScoreQuant: number | null;
   matchScoreQual: number | null;
@@ -39,6 +42,12 @@ export default function ApplicationDetailPage() {
   const [app, setApp] = useState<ApplicationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [savingStatus, setSavingStatus] = useState(false);
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [companyDraft, setCompanyDraft] = useState("");
+  const [positionDraft, setPositionDraft] = useState("");
+  const [savingMeta, setSavingMeta] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -66,6 +75,87 @@ export default function ApplicationDetailPage() {
       active = false;
     };
   }, [params.id, router]);
+
+  const handleStatusChange = async (status: string) => {
+    if (!app || status === app.status) return;
+    const prev = app.status;
+    setApp({ ...app, status }); // 乐观更新
+    setSavingStatus(true);
+    try {
+      const res = await fetch(`/api/applications/${app.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setApp((cur) => (cur ? { ...cur, status: prev } : cur)); // 失败回滚
+        alert(data.error?.message || "更新状态失败");
+      }
+    } catch {
+      setApp((cur) => (cur ? { ...cur, status: prev } : cur));
+      alert("更新状态失败，请稍后重试");
+    } finally {
+      setSavingStatus(false);
+    }
+  };
+
+  const startEditMeta = () => {
+    if (!app) return;
+    setCompanyDraft(app.company ?? "");
+    setPositionDraft(app.position ?? "");
+    setEditingMeta(true);
+  };
+
+  const handleSaveMeta = async () => {
+    if (!app) return;
+    setSavingMeta(true);
+    try {
+      const res = await fetch(`/api/applications/${app.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company: companyDraft, position: positionDraft }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setApp((cur) =>
+          cur ? { ...cur, company: data.data.company, position: data.data.position } : cur
+        );
+        setEditingMeta(false);
+      } else {
+        alert(data.error?.message || "保存失败");
+      }
+    } catch {
+      alert("保存失败，请稍后重试");
+    } finally {
+      setSavingMeta(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!app) return;
+    if (
+      !confirm(
+        "确定删除这条投递吗？\n\n关联的面试题也会一并删除，此操作不可撤销。"
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/applications/${app.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        router.push("/applications");
+      } else {
+        alert(data.error?.message || "删除失败");
+        setDeleting(false);
+      }
+    } catch {
+      alert("删除失败，请稍后重试");
+      setDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -96,10 +186,98 @@ export default function ApplicationDetailPage() {
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-3xl mx-auto space-y-8">
-        <div>
+        <div className="flex items-center justify-between">
           <Link href="/applications" className="text-sm text-blue-500 hover:underline">
             ← 返回投递列表
           </Link>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-sm text-red-500 hover:text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {deleting ? "删除中..." : "删除投递"}
+          </button>
+        </div>
+
+        {/* 公司 / 岗位 / 状态 */}
+        <div className="p-6 border border-border rounded-xl space-y-4">
+          {editingMeta ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  value={companyDraft}
+                  onChange={(e) => setCompanyDraft(e.target.value)}
+                  placeholder="公司名"
+                  maxLength={100}
+                  className="px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                />
+                <input
+                  type="text"
+                  value={positionDraft}
+                  onChange={(e) => setPositionDraft(e.target.value)}
+                  placeholder="岗位名"
+                  maxLength={100}
+                  className="px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSaveMeta}
+                  disabled={savingMeta}
+                  className="px-4 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {savingMeta ? "保存中..." : "保存"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingMeta(false)}
+                  disabled={savingMeta}
+                  className="px-4 py-1.5 text-sm border border-border rounded-lg hover:bg-secondary transition-colors disabled:opacity-50"
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-xl font-bold">
+                  {[app.company, app.position].filter(Boolean).join(" · ") ||
+                    "未命名岗位"}
+                </h1>
+              </div>
+              <button
+                type="button"
+                onClick={startEditMeta}
+                className="text-sm text-blue-500 hover:underline shrink-0"
+              >
+                编辑
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <label htmlFor="status" className="text-sm text-muted-foreground">
+              投递状态
+            </label>
+            <select
+              id="status"
+              value={app.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              disabled={savingStatus}
+              className="px-3 py-1.5 text-sm border border-border rounded-lg bg-background text-foreground disabled:opacity-50"
+              style={{ borderColor: statusColor(app.status) }}
+            >
+              {APPLICATION_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {statusLabel(s)}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* 匹配度总览 */}
