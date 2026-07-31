@@ -48,3 +48,10 @@ export type UpdateApplicationInput = z.infer<typeof updateApplicationSchema>;
 export const jdFetchSchema = z.object({
   url: z.string().url("请输入有效的链接"),
 });
+
+// 保存简历 Markdown 内容（编辑器手动保存）。封顶防超大 body。
+export const updateResumeContentSchema = z.object({
+  markdown: z.string().max(50000, "内容过长（最多 50000 字符）"),
+});
+
+export type UpdateResumeContentInput = z.infer<typeof updateResumeContentSchema>;

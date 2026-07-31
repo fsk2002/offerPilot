@@ -1,4 +1,4 @@
-# OfferPilot 协作 Workflow
+1# OfferPilot 协作 Workflow
 
 > 本文件是 Claude 与用户在本项目的协作流程约定。每次对话自动加载，Claude 应默认遵循。
 > 项目：AI 求职助手（简历上传/解析 → 岗位画像 + JD 双上下文匹配 → 报告 → 投递管理 → 简历编辑/AI 修改 → 版本/面试题）。技术栈：Next.js 16 App Router + Prisma + Postgres + 火山方舟 LLM。
@@ -43,6 +43,8 @@
 ---
 
 ## 沿用的工程模式（复用，不重造）
+
+- **包管理器：pnpm**（有 `pnpm-lock.yaml` + `node_modules/.pnpm` 结构）。装依赖一律 `pnpm add`，**绝不用 npm/yarn**——用 npm 会撞坏 pnpm 的依赖树（arborist 报 `Cannot read properties of null`）。
 
 - **分层**：route（鉴权 `getAuthToken()/verifyToken()` + 校验 + 错误映射）→ service（业务 + 抛领域错误类）→ lib（纯函数/加载器）。
 - **响应**：统一 `success()/error()`（`src/services/api-helper.ts`）。
