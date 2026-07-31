@@ -8,6 +8,11 @@ import "@uiw/react-md-editor/markdown-editor.css";
 
 // md-editor 依赖 window，禁用 SSR
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
+// 完整预览组件（md-editor 的 .Markdown 静态属性）——PDF 导出时离屏渲染整份简历
+const MDPreview = dynamic(
+  () => import("@uiw/react-md-editor").then((mod) => mod.default.Markdown),
+  { ssr: false }
+);
 
 interface EditData {
   id: string;
@@ -28,6 +33,7 @@ export default function ResumeEditPage() {
   const [saving, setSaving] = useState(false);
   const [saveHint, setSaveHint] = useState("");
   const [structuring, setStructuring] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -126,6 +132,49 @@ export default function ResumeEditPage() {
 
   const previewRef = useRef<HTMLDivElement>(null);
 
+  // PDF 导出：对离屏渲染的完整预览 DOM 用 html2canvas 截图 → jsPDF 按 A4 分页。
+  // 走位图路线（非 jsPDF.text），天然规避中文字体嵌入乱码问题。
+  const handleExport = async () => {
+    if (!meta || !previewRef.current) return;
+    setExporting(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(previewRef.current, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+      });
+
+      const pdf = new jsPDF({ unit: "mm", format: "a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgH = (canvas.height * pageW) / canvas.width;
+
+      let heightLeft = imgH;
+      let position = 0;
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
+      pdf.addImage(imgData, "JPEG", 0, position, pageW, imgH);
+      heightLeft -= pageH;
+      while (heightLeft > 0) {
+        position -= pageH;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, pageW, imgH);
+        heightLeft -= pageH;
+      }
+
+      const base = meta.fileName.replace(/\.pdf$/i, "") || "简历";
+      pdf.save(`${base}.pdf`);
+    } catch (e) {
+      console.error("PDF export failed:", e);
+      alert("导出 PDF 失败，请稍后重试");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -166,6 +215,14 @@ export default function ResumeEditPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="px-4 py-2 text-sm rounded-lg font-medium border border-border hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {exporting ? "导出中..." : "导出 PDF"}
+            </button>
+            <button
+              type="button"
               onClick={handleSave}
               disabled={saving || !dirty}
               className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -189,8 +246,25 @@ export default function ResumeEditPage() {
               preview="live"
               textareaProps={{ placeholder: "在此编辑简历 Markdown..." }}
             />
-            {/* 供 PDF 导出用的隐藏预览容器（任务 E 使用），此处先占位 ref */}
-            <div ref={previewRef} className="hidden" />
+            {/* PDF 导出用的离屏完整预览容器：绝对定位移出视口（非 display:none，
+                否则 html2canvas 截不到），固定 A4 内容宽度、白底、light 模式。 */}
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: "-9999px",
+                top: 0,
+                width: "794px",
+              }}
+            >
+              <div
+                ref={previewRef}
+                data-color-mode="light"
+                style={{ background: "#ffffff", padding: "40px" }}
+              >
+                <MDPreview source={value} />
+              </div>
+            </div>
           </div>
 
           {/* 侧栏 */}
