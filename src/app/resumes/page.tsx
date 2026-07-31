@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useDropzone } from "react-dropzone";
 
 interface Resume {
@@ -175,6 +176,12 @@ export default function ResumesPage() {
                     <span className="text-xs px-2 py-1 bg-secondary rounded-full">
                       {resume.source === "upload" ? "已上传" : resume.source}
                     </span>
+                    <Link
+                      href={`/resumes/${resume.id}/edit`}
+                      className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+                    >
+                      编辑
+                    </Link>
                     <button
                       type="button"
                       onClick={() => handleDelete(resume.id, resume.fileName)}
