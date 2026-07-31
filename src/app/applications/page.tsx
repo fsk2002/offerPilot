@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { statusLabel, statusColor } from "@/lib/application-status";
 
 interface Application {
   id: string;
@@ -88,8 +89,19 @@ export default function ApplicationsPage() {
                 href={`/applications/${app.id}`}
                 className="p-4 border border-border rounded-lg flex items-center justify-between hover:border-blue-300 transition-colors"
               >
-                <div>
-                  <p className="font-medium">{app.position || "未命名岗位"}</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">
+                      {[app.company, app.position].filter(Boolean).join(" · ") ||
+                        "未命名岗位"}
+                    </p>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full text-white shrink-0"
+                      style={{ backgroundColor: statusColor(app.status) }}
+                    >
+                      {statusLabel(app.status)}
+                    </span>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {app.resume.fileName} ·{" "}
                     {new Date(app.createdAt).toLocaleDateString("zh-CN")}
