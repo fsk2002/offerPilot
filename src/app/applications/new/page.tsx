@@ -17,6 +17,8 @@ export default function NewAnalysisPage() {
   const [resumeId, setResumeId] = useState("");
   const [jdText, setJdText] = useState("");
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
+  const [company, setCompany] = useState("");
+  const [position, setPosition] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [jdUrl, setJdUrl] = useState("");
@@ -83,6 +85,8 @@ export default function NewAnalysisPage() {
           resumeId,
           jdText,
           targetRoles,
+          company,
+          position,
         }),
       });
       const data = await res.json();
@@ -152,6 +156,37 @@ export default function NewAnalysisPage() {
                 目标岗位方向（可选，最多 3 个）
               </label>
               <RoleSelector value={targetRoles} onChange={setTargetRoles} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="company" className="block text-sm font-medium mb-1">
+                  公司名（可选）
+                </label>
+                <input
+                  id="company"
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="如：字节跳动"
+                  maxLength={100}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                />
+              </div>
+              <div>
+                <label htmlFor="position" className="block text-sm font-medium mb-1">
+                  岗位名（可选）
+                </label>
+                <input
+                  id="position"
+                  type="text"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  placeholder="如：前端开发工程师"
+                  maxLength={100}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
+                />
+              </div>
             </div>
 
             <div>
