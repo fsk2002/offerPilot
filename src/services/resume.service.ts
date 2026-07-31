@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { saveFile, deleteFile } from "@/lib/file-storage";
+import { contentToMarkdown } from "@/lib/resume-markdown";
+import { parseResume } from "@/services/ai.service";
 import type { ResumeContent } from "@/types/resume";
 
 // ============================================================
@@ -98,6 +100,92 @@ export async function getResume(id: string, userId: string) {
   }
 
   return resume;
+}
+
+// ============================================================
+// 编辑器：取初始 Markdown（降级链）+ 元信息。不在进入时跑 LLM。
+//   1. content.markdown 存在 → 直接用
+//   2. content（结构化）→ contentToMarkdown 拼
+//   3. rawParsed.rawText → 纯文本初稿
+//   4. 都没有 → 空串
+// ============================================================
+export async function getResumeForEdit(id: string, userId: string) {
+  const resume = await prisma.resume.findFirst({ where: { id, userId } });
+  if (!resume) {
+    throw new ResumeError("NOT_FOUND", "简历不存在");
+  }
+
+  const content = resume.content as (ResumeContent & { markdown?: string }) | null;
+  const rawText = (resume.rawParsed as { rawText?: string } | null)?.rawText;
+
+  let initialMarkdown = "";
+  if (content?.markdown) {
+    initialMarkdown = content.markdown;
+  } else if (content && Object.keys(content).length > 0) {
+    initialMarkdown = contentToMarkdown(content);
+  } else if (rawText) {
+    initialMarkdown = rawText;
+  }
+
+  return {
+    id: resume.id,
+    fileName: resume.fileName,
+    version: resume.version,
+    initialMarkdown,
+    hasRawText: Boolean(rawText),
+  };
+}
+
+// ============================================================
+// 编辑器：保存 Markdown 回 content，保留已有结构化字段。
+// ============================================================
+export async function updateResumeMarkdown(
+  id: string,
+  userId: string,
+  markdown: string
+): Promise<void> {
+  const resume = await prisma.resume.findFirst({
+    where: { id, userId },
+    select: { content: true },
+  });
+  if (!resume) {
+    throw new ResumeError("NOT_FOUND", "简历不存在");
+  }
+
+  const prevContent = (resume.content as Record<string, unknown> | null) ?? {};
+  await prisma.resume.update({
+    where: { id },
+    data: { content: { ...prevContent, markdown } },
+  });
+}
+
+// ============================================================
+// 编辑器：用 LLM 把 rawText 结构化并转成规整 Markdown 初稿。
+// 只返回 Markdown，不落库——由前端决定是否覆盖后再手动保存。
+// ============================================================
+export async function structureResumeToMarkdown(
+  id: string,
+  userId: string
+): Promise<string> {
+  const resume = await prisma.resume.findFirst({
+    where: { id, userId },
+    select: { rawParsed: true },
+  });
+  if (!resume) {
+    throw new ResumeError("NOT_FOUND", "简历不存在");
+  }
+
+  const rawText = (resume.rawParsed as { rawText?: string } | null)?.rawText;
+  if (!rawText) {
+    throw new ResumeError("NO_RESUME_TEXT", "该简历没有可结构化的文本内容");
+  }
+
+  const content = await parseResume(rawText);
+  if (!content) {
+    throw new ResumeError("STRUCTURE_FAILED", "AI 结构化失败，请稍后重试");
+  }
+
+  return contentToMarkdown(content);
 }
 
 // ============================================================
