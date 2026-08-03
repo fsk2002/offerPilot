@@ -55,3 +55,23 @@ export const updateResumeContentSchema = z.object({
 });
 
 export type UpdateResumeContentInput = z.infer<typeof updateResumeContentSchema>;
+
+// Phase 7: AI 智能修改请求
+export const aiEditSchema = z.object({
+  markdown: z.string().min(1, "简历内容为空").max(50000, "内容过长（最多 50000 字符）"),
+  targetRoleIds: z
+    .array(z.string().min(1))
+    .min(1, "请至少选择一个目标岗位")
+    .max(3, "最多选择 3 个目标岗位"),
+  jdText: z.string().max(20000, "JD 内容过长").optional(),
+});
+
+export type AIEditInput = z.infer<typeof aiEditSchema>;
+
+// Phase 7: 格式校对请求
+export const formatCheckSchema = z.object({
+  markdown: z.string().min(1, "简历内容为空").max(50000, "内容过长（最多 50000 字符）"),
+  withAiReview: z.boolean().optional(),
+});
+
+export type FormatCheckInput = z.infer<typeof formatCheckSchema>;

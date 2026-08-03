@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { loadPrompt } from "@/lib/prompts";
+import { getProfiles } from "@/lib/role-profiles";
 import type { QuantMatchResult } from "@/lib/matching";
 import type { MatchReport } from "@/types/application";
 import type { ResumeContent } from "@/types/resume";
@@ -214,5 +215,124 @@ export class AIServiceError extends Error {
     super(message);
     this.code = code;
     this.name = "AIServiceError";
+  }
+}
+
+// ============================================================
+// Phase 7: AI 智能修改（岗位感知改写）
+// ============================================================
+
+const aiEditSchema = z.object({
+  modifiedMarkdown: z.string().min(1, "AI 返回了空简历"),
+  summary: z.string().default(""),
+  editNotes: z.array(z.string()).default([]),
+});
+
+export interface AIEditInput {
+  resumeText: string;
+  targetRoleIds: string[];
+  jdText?: string;
+}
+
+export interface AIEditResult {
+  modifiedMarkdown: string;
+  summary: string;
+  editNotes: string[];
+}
+
+/**
+ * 调用 LLM 按目标岗位画像（+可选 JD）改写简历 Markdown。
+ * 与 qualitativeMatch 不同，这里必须有真实 LLM 配置——没有 key 时不降级 mock，
+ * 直接报错，避免用户误把示例改写当成真实建议。
+ */
+export async function aiEditResume(input: AIEditInput): Promise<AIEditResult> {
+  if (!isLLMConfigured()) {
+    throw new AIServiceError(
+      "AI_NOT_CONFIGURED",
+      "尚未配置 LLM API Key，请先在 .env 中设置 LLM_API_KEY"
+    );
+  }
+
+  const profiles = await getProfiles(input.targetRoleIds);
+  const profileNarrative =
+    profiles.length > 0
+      ? profiles
+          .map((p) => {
+            const sections = p.narrativeStrategy.perSection
+              .map((s) => `  - ${s.section}: ${s.emphasis}`)
+              .join("\n");
+            return `- ${p.name}：${p.narrativeStrategy.overall}\n${sections}`;
+          })
+          .join("\n")
+      : "未指定具体岗位画像，请基于通用求职建议优化。";
+
+  const prompt = await loadPrompt("ai-edit", {
+    targetRoleName: profiles.map((p) => p.name).join("、") || "未指定",
+    roleProfileNarrative: profileNarrative,
+    jdText: input.jdText?.trim() || "（未提供）",
+    resumeText: input.resumeText,
+  });
+
+  try {
+    const completion = await llmClient().chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.4,
+    });
+
+    const raw = completion.choices[0]?.message?.content;
+    if (!raw) throw new AIServiceError("AI_EMPTY", "AI 返回为空");
+    return aiEditSchema.parse(JSON.parse(raw));
+  } catch (e) {
+    console.error("aiEditResume failed:", e);
+    if (e instanceof AIServiceError) throw e;
+    throw new AIServiceError("AI_SERVICE_ERROR", "AI 修改服务暂时不可用，请稍后重试");
+  }
+}
+
+// ============================================================
+// Phase 7: AI 格式质评（表达质量 / 结构 / 亮点 / 专业度）
+// 规则引擎之外的补充审查；未配置 LLM 时返回空数组。
+// ============================================================
+
+const formatReviewSchema = z.object({
+  issues: z.array(
+    z.object({
+      type: z.enum(["expression", "structure", "highlight", "professionalism"]),
+      line: z.number().default(0),
+      severity: z.enum(["high", "medium", "low"]).default("medium"),
+      description: z.string(),
+    })
+  ),
+});
+
+export interface AIFormatReviewIssue {
+  type: "expression" | "structure" | "highlight" | "professionalism";
+  line: number;
+  severity: "high" | "medium" | "low";
+  description: string;
+}
+
+/**
+ * AI 表达质量审查。LLM 未配置时返回空数组（规则引擎仍可用）。
+ */
+export async function aiFormatReview(resumeText: string): Promise<AIFormatReviewIssue[]> {
+  if (!isLLMConfigured()) return [];
+
+  try {
+    const prompt = await loadPrompt("format-review", { resumeText });
+    const completion = await llmClient().chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+    });
+    const raw = completion.choices[0]?.message?.content;
+    if (!raw) return [];
+    return formatReviewSchema.parse(JSON.parse(raw)).issues;
+  } catch (e) {
+    console.error("aiFormatReview failed:", e);
+    return [];
   }
 }
