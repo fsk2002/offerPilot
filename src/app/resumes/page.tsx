@@ -98,7 +98,9 @@ export default function ResumesPage() {
       const res = await fetch(`/api/resumes/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
-        setResumes((prev) => prev.filter((r) => r.id !== id));
+        // 删除后重新拉取列表：删除当前链头时父版本会提升为新链头，
+        // 本地只移除该 id 会导致列表空置。
+        await fetchResumes();
       } else {
         alert(data.error?.message || "删除失败");
       }

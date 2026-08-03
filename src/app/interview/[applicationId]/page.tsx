@@ -99,6 +99,10 @@ export default function InterviewPage() {
           setAnswers(
             Object.fromEntries(list.map((i) => [i.id, i.answer ?? ""]))
           );
+        } else {
+          // 题目接口失败时给出明确错误态，避免停留在"加载中"
+          setInterviews([]);
+          setError(ivRes.error?.message || "获取面试题失败");
         }
       } catch {
         if (active) setError("网络错误，请稍后重试");

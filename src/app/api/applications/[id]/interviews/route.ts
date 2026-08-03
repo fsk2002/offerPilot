@@ -5,6 +5,7 @@ import {
   generateAndSaveInterviews,
   InterviewError,
 } from "@/services/interview.service";
+import { AIServiceError } from "@/services/ai.service";
 import { success, error } from "@/services/api-helper";
 
 /**
@@ -49,6 +50,9 @@ export async function POST(
       const status =
         e.code === "NOT_FOUND" ? 404 : e.code === "NO_RESUME_TEXT" ? 400 : 502;
       return error(e.code, e.message, status);
+    }
+    if (e instanceof AIServiceError) {
+      return error(e.code, e.message, 502);
     }
     console.error("Generate interviews error:", e);
     return error("INTERNAL_ERROR", "生成面试题失败", 500);

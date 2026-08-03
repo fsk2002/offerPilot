@@ -44,12 +44,20 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // 可选 body：编辑器"另存为新版本"时携带当前 markdown
+    // 可选 body：编辑器"另存为新版本"时携带当前 markdown。
+    // 只有真正为空的 body 才走"无 markdown"分支；非法 JSON 直接 400，
+    // 避免截断/损坏的请求被当成空 body 而静默生成错误版本。
     let markdown: string | undefined;
     const contentType = request.headers.get("content-type") ?? "";
     if (contentType.includes("application/json")) {
-      try {
-        const body = await request.json();
+      const raw = await request.text();
+      if (raw.trim()) {
+        let body: unknown;
+        try {
+          body = JSON.parse(raw);
+        } catch {
+          return error("VALIDATION_ERROR", "请求体不是有效的 JSON");
+        }
         const parsed = createVersionSchema.safeParse(body);
         if (!parsed.success) {
           return error(
@@ -58,8 +66,6 @@ export async function POST(
           );
         }
         markdown = parsed.data.markdown;
-      } catch {
-        // 空 body 视为不带 markdown
       }
     }
 

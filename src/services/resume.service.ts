@@ -247,6 +247,47 @@ export async function getResumeVersions(id: string, userId: string) {
 }
 
 /**
+ * 计算版本链内最大版本号（纯函数）。沿 parentId 回溯到根，
+ * 再从根收集全部后代，取最大 version。
+ */
+function findChainMax(
+  all: Array<{ id: string; parentId: string | null; version: number }>,
+  targetId: string
+): number {
+  const byId = new Map(all.map((r) => [r.id, r]));
+  let rootId = targetId;
+  let cursor = byId.get(targetId);
+  while (cursor?.parentId) {
+    const parent = byId.get(cursor.parentId);
+    if (!parent) break;
+    rootId = parent.id;
+    cursor = parent;
+  }
+
+  const childrenOf = new Map<
+    string,
+    Array<{ id: string; parentId: string | null; version: number }>
+  >();
+  for (const r of all) {
+    if (r.parentId) {
+      const arr = childrenOf.get(r.parentId) ?? [];
+      arr.push(r);
+      childrenOf.set(r.parentId, arr);
+    }
+  }
+
+  let max = 0;
+  const visit = (rid: string) => {
+    const node = byId.get(rid);
+    if (!node) return;
+    max = Math.max(max, node.version);
+    for (const child of childrenOf.get(rid) ?? []) visit(child.id);
+  };
+  visit(rootId);
+  return max;
+}
+
+/**
  * 从当前版本派生一个新版本（parentId = 当前 id，version = 链内最大 + 1）。
  * content/rawParsed 复制，filePath 沿用原 PDF（版本差异在 Markdown 内容上）。
  * 也用于"版本回退"：对任意旧版本调用即可从该版本重新开分支。
@@ -261,36 +302,44 @@ export async function createResumeVersion(
     throw new ResumeError("NOT_FOUND", "简历不存在");
   }
 
-  const versions = await getResumeVersions(id, userId);
-  const maxVersion = versions.reduce((max, v) => Math.max(max, v.version), 0);
-  const newVersion = maxVersion + 1;
+  // 事务 + 目标行 FOR UPDATE：串行化同一版本上的并发"另存为新版本"，
+  // 防止两个请求同时读到相同 maxVersion 而生成重复版本号。
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Resume" WHERE id = ${id} FOR UPDATE`;
 
-  return prisma.resume.create({
-    data: {
-      userId,
-      fileName: resume.fileName,
-      filePath: resume.filePath,
-      fileSize: resume.fileSize,
-      version: newVersion,
-      source: "editor",
-      // 若带了 markdown（编辑器"另存为新版本"），保存当前编辑内容；
-      // 否则继承原版 content（版本回退场景）。
-      content:
-        markdown !== undefined
-          ? {
-              ...((resume.content as Record<string, unknown> | null) ?? {}),
-              markdown,
-            }
-          : (resume.content ?? undefined),
-      rawParsed: resume.rawParsed ?? undefined,
-      parentId: id,
-    },
-    select: {
-      id: true,
-      version: true,
-      fileName: true,
-      createdAt: true,
-    },
+    const all = await tx.resume.findMany({
+      where: { userId },
+      select: { id: true, parentId: true, version: true },
+    });
+    const newVersion = findChainMax(all, id) + 1;
+
+    return tx.resume.create({
+      data: {
+        userId,
+        fileName: resume.fileName,
+        filePath: resume.filePath,
+        fileSize: resume.fileSize,
+        version: newVersion,
+        source: "editor",
+        // 若带了 markdown（编辑器"另存为新版本"），保存当前编辑内容；
+        // 否则继承原版 content（版本回退场景）。
+        content:
+          markdown !== undefined
+            ? {
+                ...((resume.content as Record<string, unknown> | null) ?? {}),
+                markdown,
+              }
+            : (resume.content ?? undefined),
+        rawParsed: resume.rawParsed ?? undefined,
+        parentId: id,
+      },
+      select: {
+        id: true,
+        version: true,
+        fileName: true,
+        createdAt: true,
+      },
+    });
   });
 }
 
@@ -347,15 +396,25 @@ export async function deleteResume(id: string, userId: string): Promise<void> {
       await tx.application.deleteMany({ where: { id: { in: appIds } } });
     }
 
-    // 该简历若是其他版本的 parent，先解除引用再删，避免自关联外键报错
-    await tx.resume.updateMany({ where: { parentId: id }, data: { parentId: null } });
+    // 该简历若是其他版本的 parent，把直接子版本改挂到祖父版本，
+    // 保持版本链不断裂（v1→v2→v3 删 v2 后 v3 挂到 v1）。
+    await tx.resume.updateMany({
+      where: { parentId: id },
+      data: { parentId: resume.parentId },
+    });
     await tx.resume.delete({ where: { id } });
   });
 
   // 记录删除成功后再删磁盘文件；删文件失败不回滚（文件残留可容忍，记录已清）
+  // 多个版本共享同一 PDF，只有没有其他版本引用该路径时才真正删文件。
   if (resume.filePath) {
     try {
-      await deleteFile(resume.filePath);
+      const refCount = await prisma.resume.count({
+        where: { filePath: resume.filePath },
+      });
+      if (refCount === 0) {
+        await deleteFile(resume.filePath);
+      }
     } catch (e) {
       console.warn("Resume file delete failed (record already removed):", e);
     }
