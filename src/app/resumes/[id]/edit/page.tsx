@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import "@uiw/react-md-editor/markdown-editor.css";
+import AIEditPanel from "@/components/resume/AIEditPanel";
+import FormatCheckPanel from "@/components/resume/FormatCheckPanel";
 
 // md-editor 依赖 window，禁用 SSR
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
@@ -34,6 +36,8 @@ export default function ResumeEditPage() {
   const [saveHint, setSaveHint] = useState("");
   const [structuring, setStructuring] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [showAIEdit, setShowAIEdit] = useState(false);
+  const [showFormatCheck, setShowFormatCheck] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -285,23 +289,59 @@ export default function ResumeEditPage() {
               </p>
             </div>
 
-            {/* Phase 7 预留占位 */}
-            <div className="p-4 border border-dashed border-border rounded-lg space-y-2 opacity-60">
-              <h2 className="font-medium text-sm">AI 优化（即将上线）</h2>
-              {["AI 智能修改", "格式校对", "岗位重评分"].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  disabled
-                  className="w-full px-3 py-2 text-sm border border-border rounded-lg cursor-not-allowed"
-                >
-                  {t}
-                </button>
-              ))}
+            {/* Phase 7: AI 智能修改 + 格式校对 */}
+            <div className="p-4 border border-border rounded-lg space-y-2">
+              <h2 className="font-medium text-sm">AI 优化</h2>
+              <button
+                type="button"
+                onClick={() => setShowAIEdit(true)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg hover:bg-secondary transition-colors"
+              >
+                AI 智能修改
+              </button>
+              <p className="text-xs text-muted-foreground">
+                按目标岗位重新组织简历叙事，逐条确认修改。
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowFormatCheck(true)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-lg hover:bg-secondary transition-colors"
+              >
+                格式校对
+              </button>
+              <p className="text-xs text-muted-foreground">
+                检查日期、标点、拼写、量化数据等格式问题。
+              </p>
             </div>
           </aside>
         </div>
       </div>
+
+      {showAIEdit && meta && (
+        <AIEditPanel
+          resumeId={meta.id}
+          markdown={value}
+          onApply={(m) => {
+            setValue(m);
+            setDirty(true);
+            setSaveHint("AI 修改已应用，记得保存");
+          }}
+          onClose={() => setShowAIEdit(false)}
+        />
+      )}
+
+      {showFormatCheck && meta && (
+        <FormatCheckPanel
+          resumeId={meta.id}
+          markdown={value}
+          onApply={(m) => {
+            setValue(m);
+            setDirty(true);
+            setSaveHint("格式修复已应用，记得保存");
+          }}
+          onClose={() => setShowFormatCheck(false)}
+        />
+      )}
     </main>
   );
 }
