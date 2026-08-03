@@ -24,6 +24,11 @@ export default function NewAnalysisPage() {
   const [jdUrl, setJdUrl] = useState("");
   const [fetching, setFetching] = useState(false);
   const [fetchHint, setFetchHint] = useState("");
+  const [recommending, setRecommending] = useState(false);
+  const [recommendations, setRecommendations] = useState<
+    Array<{ roleId: string; roleName: string; score: number; matched: string[] }>
+  >([]);
+  const [recError, setRecError] = useState("");
 
   const handleFetchUrl = async () => {
     if (!jdUrl.trim()) return;
@@ -47,6 +52,36 @@ export default function NewAnalysisPage() {
     } finally {
       setFetching(false);
     }
+  };
+
+  const handleRecommend = async () => {
+    if (!resumeId) return;
+    setRecommending(true);
+    setRecError("");
+    setRecommendations([]);
+    try {
+      const res = await fetch("/api/role-profiles/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeId }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setRecError(data.error?.message || "推荐失败");
+        return;
+      }
+      setRecommendations(data.data.recommended);
+    } catch {
+      setRecError("推荐失败，请稍后重试");
+    } finally {
+      setRecommending(false);
+    }
+  };
+
+  const addRecommendedRole = (roleId: string) => {
+    setTargetRoles((prev) =>
+      prev.includes(roleId) || prev.length >= 3 ? prev : [...prev, roleId]
+    );
   };
 
   useEffect(() => {
@@ -172,6 +207,49 @@ export default function NewAnalysisPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium">
+                  岗位智能推荐（可选）
+                </label>
+                <button
+                  type="button"
+                  onClick={handleRecommend}
+                  disabled={recommending || !resumeId}
+                  className="px-3 py-1 text-xs border border-border rounded-lg hover:bg-secondary transition-colors disabled:opacity-50"
+                >
+                  {recommending ? "推荐中..." : "帮我推荐岗位"}
+                </button>
+              </div>
+              {recError && (
+                <p className="text-xs text-red-600 mb-2">{recError}</p>
+              )}
+              {recommendations.length > 0 && (
+                <div className="mb-3 space-y-1.5">
+                  {recommendations.map((r) => (
+                    <button
+                      key={r.roleId}
+                      type="button"
+                      onClick={() => addRecommendedRole(r.roleId)}
+                      disabled={targetRoles.includes(r.roleId) || targetRoles.length >= 3}
+                      className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm border border-border rounded-lg hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                    >
+                      <span className="min-w-0 truncate">
+                        {r.roleName}
+                        <span className="text-xs text-muted-foreground">
+                          {r.matched.length > 0 && ` · 命中 ${r.matched.slice(0, 3).join("、")}`}
+                        </span>
+                      </span>
+                      <span className="shrink-0 font-medium">{r.score}</span>
+                    </button>
+                  ))}
+                  <p className="text-xs text-muted-foreground">
+                    点击推荐岗位加入目标方向（最多 3 个）。
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>

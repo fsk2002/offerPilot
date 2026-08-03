@@ -163,3 +163,44 @@ export function compareRoles(
     };
   });
 }
+
+/**
+ * 岗位智能推荐（P2 补齐）：不看 JD，直接用简历文本对每个岗位画像的
+ * 典型技能做加权命中率打分，返回按匹配度降序的推荐列表。
+ */
+export function recommendProfiles(
+  resumeText: string,
+  profiles: RoleProfile[]
+): Array<{
+  roleId: string;
+  roleName: string;
+  family: string;
+  category: string;
+  score: number;
+  matched: string[];
+}> {
+  const lower = resumeText.toLowerCase();
+
+  return profiles
+    .map((p) => {
+      let total = 0;
+      let matchedWeight = 0;
+      const matched: string[] = [];
+      for (const skill of p.typicalSkills) {
+        total += skill.weight;
+        if (hasSkill(lower, skill.aliases)) {
+          matchedWeight += skill.weight;
+          matched.push(skill.name);
+        }
+      }
+      return {
+        roleId: p.id,
+        roleName: p.name,
+        family: p.family,
+        category: p.category,
+        score: total === 0 ? 0 : Math.round((matchedWeight / total) * 100),
+        matched,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+}
