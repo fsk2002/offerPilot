@@ -1,0 +1,110 @@
+{
+  "id": "project-manager",
+  "name": "项目经理",
+  "family": "管理职能方向",
+  "category": "管理/职能类",
+  "typicalSkills": [
+    {
+      "name": "项目规划",
+      "weight": 9,
+      "aliases": [
+        "项目规划",
+        "排期",
+        "计划",
+        "里程碑",
+        "wbs",
+        "roadmap"
+      ],
+      "required": true
+    },
+    {
+      "name": "敏捷管理",
+      "weight": 8,
+      "aliases": [
+        "敏捷",
+        "scrum",
+        "看板",
+        "迭代",
+        "站会",
+        "sprint"
+      ],
+      "required": false
+    },
+    {
+      "name": "风险管控",
+      "weight": 8,
+      "aliases": [
+        "风险管理",
+        "风险",
+        "阻塞",
+        "依赖",
+        "变更管理"
+      ],
+      "required": false
+    },
+    {
+      "name": "跨团队协调",
+      "weight": 8,
+      "aliases": [
+        "跨团队",
+        "协调",
+        "沟通",
+        "stakeholder",
+        "干系人"
+      ],
+      "required": false
+    },
+    {
+      "name": "数据分析",
+      "weight": 6,
+      "aliases": [
+        "数据分析",
+        "项目复盘",
+        "度量",
+        "效率"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "计划能力",
+      "prompt": "考察目标拆解、排期与资源安排的合理性。",
+      "weight": 9
+    },
+    {
+      "name": "执行控制",
+      "prompt": "考察进度跟踪、风险识别与阻塞解决。",
+      "weight": 9
+    },
+    {
+      "name": "协作推动",
+      "prompt": "考察跨团队沟通、干系人管理与冲突处理。",
+      "weight": 8
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出项目从启动到交付的控制力，用准时交付率、风险化解、跨团队成果量化。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调项目规模、风险处理与交付结果。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出负责的项目、团队规模与管理方法。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按规划、敏捷、风险、协调组织。"
+      }
+    ],
+    "keywords": [
+      "项目规划",
+      "敏捷",
+      "风险管理",
+      "准时交付",
+      "跨团队"
+    ]
+  }
+}

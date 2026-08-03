@@ -1,0 +1,111 @@
+{
+  "id": "uiux-designer",
+  "name": "UI/UX 设计师",
+  "family": "设计方向",
+  "category": "产品/设计类",
+  "typicalSkills": [
+    {
+      "name": "Figma",
+      "weight": 9,
+      "aliases": [
+        "figma",
+        "sketch",
+        "xd",
+        "设计稿",
+        "组件库",
+        "design system"
+      ],
+      "required": true
+    },
+    {
+      "name": "交互设计",
+      "weight": 8,
+      "aliases": [
+        "交互设计",
+        "用户流程",
+        "信息架构",
+        "线框图",
+        "可用性测试",
+        "用户研究"
+      ],
+      "required": false
+    },
+    {
+      "name": "视觉设计",
+      "weight": 8,
+      "aliases": [
+        "视觉设计",
+        "ui设计",
+        "插画",
+        "动效",
+        "品牌视觉",
+        "设计规范"
+      ],
+      "required": false
+    },
+    {
+      "name": "设计系统",
+      "weight": 7,
+      "aliases": [
+        "设计系统",
+        "design tokens",
+        "组件规范",
+        "主题"
+      ],
+      "required": false
+    },
+    {
+      "name": "数据分析",
+      "weight": 5,
+      "aliases": [
+        "数据驱动",
+        "a/b测试",
+        "转化率",
+        "用户行为"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "设计思维",
+      "prompt": "考察从用户问题出发的推导过程与方案合理性。",
+      "weight": 9
+    },
+    {
+      "name": "落地质量",
+      "prompt": "考察设计规范、组件化、开发协作与还原度。",
+      "weight": 8
+    },
+    {
+      "name": "数据验证",
+      "prompt": "考察用数据评估设计效果、迭代优化的意识。",
+      "weight": 7
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出以用户为中心的完整设计流程：研究、方案、验证、规范沉淀，用可用性/转化数据量化设计价值。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调从洞察到高保真方案到数据验证的完整链路。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出主导的设计项目、设计系统建设与协作方式。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按设计工具、交互、视觉、设计系统组织。"
+      }
+    ],
+    "keywords": [
+      "Figma",
+      "交互设计",
+      "用户研究",
+      "设计系统",
+      "可用性",
+      "转化"
+    ]
+  }
+}

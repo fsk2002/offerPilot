@@ -1,0 +1,99 @@
+{
+  "id": "user-ops",
+  "name": "用户运营",
+  "family": "运营方向",
+  "category": "运营/市场类",
+  "typicalSkills": [
+    {
+      "name": "用户分层",
+      "weight": 9,
+      "aliases": [
+        "用户分层",
+        "rfm",
+        "用户画像",
+        "精细化运营",
+        "生命周期"
+      ],
+      "required": true
+    },
+    {
+      "name": "用户增长",
+      "weight": 8,
+      "aliases": [
+        "用户增长",
+        "拉新",
+        "留存",
+        "召回",
+        "促活"
+      ],
+      "required": false
+    },
+    {
+      "name": "社群运营",
+      "weight": 7,
+      "aliases": [
+        "社群运营",
+        "社群",
+        "微信群",
+        "用户群",
+        "私域"
+      ],
+      "required": false
+    },
+    {
+      "name": "数据分析",
+      "weight": 8,
+      "aliases": [
+        "数据分析",
+        "sql",
+        "excel",
+        "留存",
+        "流失",
+        "漏斗"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "分层策略",
+      "prompt": "考察用户分层方法与对应运营策略的匹配度。",
+      "weight": 9
+    },
+    {
+      "name": "增长动作",
+      "prompt": "考察拉新/留存/召回的具体动作与效果。",
+      "weight": 8
+    },
+    {
+      "name": "数据闭环",
+      "prompt": "考察用数据跟踪运营效果并迭代的能力。",
+      "weight": 8
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出精细化用户运营：分层、策略、触达、数据验证，用留存/召回/活跃数据量化。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调分层体系、运营策略与留存/召回数据。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出用户体量、负责的运营策略与结果。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按分层、增长、社群、数据分析组织。"
+      }
+    ],
+    "keywords": [
+      "用户分层",
+      "留存",
+      "召回",
+      "用户画像",
+      "社群",
+      "数据"
+    ]
+  }
+}

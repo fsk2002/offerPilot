@@ -1,0 +1,123 @@
+{
+  "id": "product-manager",
+  "name": "产品经理",
+  "family": "产品方向",
+  "category": "产品/设计类",
+  "typicalSkills": [
+    {
+      "name": "需求分析",
+      "weight": 9,
+      "aliases": [
+        "需求分析",
+        "需求文档",
+        "prd",
+        "用户调研",
+        "用户访谈",
+        "竞品分析"
+      ],
+      "required": true
+    },
+    {
+      "name": "数据分析",
+      "weight": 8,
+      "aliases": [
+        "数据分析",
+        "sql",
+        "excel",
+        "漏斗分析",
+        "留存",
+        "转化率",
+        "ab测试",
+        "ab实验"
+      ],
+      "required": false
+    },
+    {
+      "name": "产品设计",
+      "weight": 8,
+      "aliases": [
+        "产品设计",
+        "原型",
+        "axure",
+        "figma",
+        "交互设计",
+        "流程图"
+      ],
+      "required": false
+    },
+    {
+      "name": "项目管理",
+      "weight": 7,
+      "aliases": [
+        "项目管理",
+        "敏捷",
+        "scrum",
+        "迭代",
+        "排期",
+        "roadmap"
+      ],
+      "required": false
+    },
+    {
+      "name": "AI 产品",
+      "weight": 6,
+      "aliases": [
+        "ai产品",
+        "大模型产品",
+        "llm",
+        "prompt",
+        "生成式ai",
+        "智能体"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "需求洞察",
+      "prompt": "考察从用户/业务问题到产品方案的推理链，是否有真实案例和数据支撑。",
+      "weight": 9
+    },
+    {
+      "name": "数据分析",
+      "prompt": "考察用指标定义问题、AB 实验设计、结果归因的能力。",
+      "weight": 8
+    },
+    {
+      "name": "交付推动",
+      "prompt": "考察跨团队协调、优先级取舍、版本节奏管理。",
+      "weight": 7
+    },
+    {
+      "name": "AI 产品理解",
+      "prompt": "考察对 LLM 能力边界、Prompt、RAG 等 AI 产品化手段的理解。",
+      "weight": 6
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出需求到落地闭环：问题洞察、方案设计、数据验证、跨团队交付，用指标（留存/转化/效率）量化结果。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调需求背景、方案取舍、上线后的数据结果。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出负责的产品范围、关键决策与业务影响。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按需求分析、数据分析、产品设计、AI 产品能力组织。"
+      }
+    ],
+    "keywords": [
+      "需求分析",
+      "数据分析",
+      "留存",
+      "转化",
+      "AB 测试",
+      "AI 产品",
+      "项目管理"
+    ]
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "id": "product-ops",
+  "name": "产品运营",
+  "family": "运营方向",
+  "category": "运营/市场类",
+  "typicalSkills": [
+    {
+      "name": "活动运营",
+      "weight": 8,
+      "aliases": [
+        "活动运营",
+        "活动策划",
+        "拉新",
+        "促活",
+        "裂变",
+        "活动复盘"
+      ],
+      "required": false
+    },
+    {
+      "name": "数据分析",
+      "weight": 9,
+      "aliases": [
+        "数据分析",
+        "sql",
+        "excel",
+        "留存",
+        "漏斗",
+        "转化",
+        "北极星指标"
+      ],
+      "required": true
+    },
+    {
+      "name": "用户增长",
+      "weight": 8,
+      "aliases": [
+        "用户增长",
+        "增长",
+        "渠道",
+        "获客",
+        "roi"
+      ],
+      "required": false
+    },
+    {
+      "name": "内容运营",
+      "weight": 6,
+      "aliases": [
+        "内容运营",
+        "文案",
+        "专题",
+        "社区"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "指标意识",
+      "prompt": "考察是否能用指标定义目标、拆解漏斗、归因结果。",
+      "weight": 9
+    },
+    {
+      "name": "活动策划",
+      "prompt": "考察活动目标、玩法设计、资源协调与复盘能力。",
+      "weight": 8
+    },
+    {
+      "name": "增长思维",
+      "prompt": "考察拉新/留存/促活的组合策略与 ROI 意识。",
+      "weight": 7
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出数据驱动的运营闭环：目标拆解、活动/内容落地、复盘迭代，用量化增长指标证明价值。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调活动带来的拉新/留存/转化数据与复盘改进。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出负责的运营模块、关键活动和数据结果。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按数据分析、活动、增长、内容组织。"
+      }
+    ],
+    "keywords": [
+      "活动运营",
+      "留存",
+      "转化",
+      "增长",
+      "数据分析",
+      "ROI"
+    ]
+  }
+}

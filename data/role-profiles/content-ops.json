@@ -1,0 +1,101 @@
+{
+  "id": "content-ops",
+  "name": "内容运营",
+  "family": "运营方向",
+  "category": "运营/市场类",
+  "typicalSkills": [
+    {
+      "name": "内容策划",
+      "weight": 9,
+      "aliases": [
+        "内容策划",
+        "选题",
+        "专题",
+        "内容策略",
+        "内容库"
+      ],
+      "required": true
+    },
+    {
+      "name": "内容生产",
+      "weight": 8,
+      "aliases": [
+        "内容生产",
+        "写作",
+        "短视频",
+        "图文",
+        "ai内容",
+        "文案"
+      ],
+      "required": false
+    },
+    {
+      "name": "数据分析",
+      "weight": 8,
+      "aliases": [
+        "数据分析",
+        "阅读量",
+        "完读率",
+        "互动率",
+        "爆款",
+        "内容数据"
+      ],
+      "required": false
+    },
+    {
+      "name": "渠道运营",
+      "weight": 6,
+      "aliases": [
+        "渠道运营",
+        "公众号",
+        "抖音",
+        "小红书",
+        "b站",
+        "知乎"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "选题能力",
+      "prompt": "考察从用户/热点/数据中发现选题的方法。",
+      "weight": 9
+    },
+    {
+      "name": "内容质量",
+      "prompt": "考察内容结构与表达，以及 AI 辅助生产的应用。",
+      "weight": 8
+    },
+    {
+      "name": "数据迭代",
+      "prompt": "考察用阅读/互动数据复盘并优化内容。",
+      "weight": 8
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出内容从策划到爆款的闭环，用阅读、完读、互动数据量化，体现 AI 辅助内容生产的效率。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调选题逻辑、内容产量与数据结果。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出负责的内容阵地与爆款案例。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按策划、生产、数据、渠道组织。"
+      }
+    ],
+    "keywords": [
+      "内容策划",
+      "爆款",
+      "完读率",
+      "互动",
+      "AI 内容",
+      "渠道"
+    ]
+  }
+}

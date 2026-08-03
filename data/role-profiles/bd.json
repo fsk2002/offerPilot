@@ -1,0 +1,98 @@
+{
+  "id": "bd",
+  "name": "商务拓展",
+  "family": "市场方向",
+  "category": "运营/市场类",
+  "typicalSkills": [
+    {
+      "name": "商务谈判",
+      "weight": 9,
+      "aliases": [
+        "商务谈判",
+        "谈判",
+        "合同",
+        "报价",
+        "商务条款"
+      ],
+      "required": true
+    },
+    {
+      "name": "客户拓展",
+      "weight": 8,
+      "aliases": [
+        "客户拓展",
+        "客户开发",
+        "渠道合作",
+        "合作伙伴",
+        "线索",
+        "pipeline"
+      ],
+      "required": false
+    },
+    {
+      "name": "行业洞察",
+      "weight": 7,
+      "aliases": [
+        "行业洞察",
+        "行业分析",
+        "竞对",
+        "市场分析"
+      ],
+      "required": false
+    },
+    {
+      "name": "数据分析",
+      "weight": 6,
+      "aliases": [
+        "数据分析",
+        "crm",
+        "销售漏斗",
+        "gmv",
+        "roi"
+      ],
+      "required": false
+    }
+  ],
+  "evaluationDimensions": [
+    {
+      "name": "拓展能力",
+      "prompt": "考察客户/渠道开发的方法与成果。",
+      "weight": 9
+    },
+    {
+      "name": "谈判落地",
+      "prompt": "考察从接触到签约的推进能力与商务条款把握。",
+      "weight": 8
+    },
+    {
+      "name": "商业敏感",
+      "prompt": "考察对商业模式、行业机会的判断。",
+      "weight": 7
+    }
+  ],
+  "narrativeStrategy": {
+    "overall": "突出从线索到签约的商务闭环，用客户数量、合同金额、合作成果量化。",
+    "perSection": [
+      {
+        "section": "projects",
+        "emphasis": "强调拓展案例、谈判过程与签约结果。"
+      },
+      {
+        "section": "experience",
+        "emphasis": "突出负责的客户/渠道与商业成果。"
+      },
+      {
+        "section": "skills",
+        "emphasis": "按谈判、拓展、洞察、数据组织。"
+      }
+    ],
+    "keywords": [
+      "商务拓展",
+      "谈判",
+      "签约",
+      "客户",
+      "渠道",
+      "GMV"
+    ]
+  }
+}
