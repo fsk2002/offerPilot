@@ -102,3 +102,19 @@ export const updateProfileSchema = z.object({
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+// P1 补齐: 多 JD 批量对比请求（每份 JD 最小长度与 P0 单 JD 一致）
+export const batchCompareSchema = z.object({
+  resumeId: z.string().min(1, "请选择简历"),
+  jds: z
+    .array(
+      z.object({
+        title: z.string().trim().max(200, "JD 标题过长").optional(),
+        text: z.string().min(20, "JD 内容太短，请粘贴完整的职位描述"),
+      })
+    )
+    .min(1, "请至少输入一份 JD")
+    .max(10, "一次最多对比 10 份 JD"),
+});
+
+export type BatchCompareInput = z.infer<typeof batchCompareSchema>;

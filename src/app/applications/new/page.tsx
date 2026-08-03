@@ -73,6 +73,29 @@ export default function NewAnalysisPage() {
     };
   }, [router]);
 
+  // 从批量对比页进入时预填 JD（sessionStorage 传递，避免 URL 超长）
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("preset") !== "jd") return;
+    // 延后到宏任务再 setState，避免 effect 内同步更新触发级联渲染告警
+    const timer = setTimeout(() => {
+      try {
+        const preset = JSON.parse(
+          sessionStorage.getItem("offerpilot-batch-jd") ?? "null"
+        ) as { title?: string; text?: string } | null;
+        if (preset?.text) {
+          setJdText(preset.text);
+          if (preset.title) setPosition(preset.title);
+        }
+      } catch {
+        // 忽略损坏的 preset
+      } finally {
+        sessionStorage.removeItem("offerpilot-batch-jd");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");

@@ -93,6 +93,12 @@ export default function ApplicationsPage() {
               ))}
             </select>
             <Link
+              href="/applications/batch"
+              className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-secondary transition-colors"
+            >
+              批量对比
+            </Link>
+            <Link
               href="/applications/new"
               className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
             >
