@@ -65,8 +65,8 @@
 - [x] Phase 5 岗位画像体系（分类树 + 12 画像 + 选择交互 + 异岗对比）
 - [x] Phase 6 简历编辑器（Markdown 编辑器 + 侧栏 + 导出）
 - [x] Phase 7 AI 智能修改 + 格式校对（岗位感知修改 + Diff + 格式检查）
-- [ ] Phase 8 版本控制 + 面试题（版本管理 + 面试生成）
-- [ ] Phase 9 部署 & 打磨
+- [x] Phase 8 版本控制 + 面试题（版本管理 + 面试生成）
+- [x] Phase 9 部署 & 打磨（CI + Docker 自托管 + README + 演示文档）
 
 **已知延后项**：JD 链接抓取对 SPA（如 campus.jd.com 哈希路由）无效，需 Playwright，用户已决定暂缓。
 
