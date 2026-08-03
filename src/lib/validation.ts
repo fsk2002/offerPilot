@@ -82,3 +82,12 @@ export const createVersionSchema = z.object({
 });
 
 export type CreateVersionInput = z.infer<typeof createVersionSchema>;
+
+// Phase 8: 面试题回答保存
+export const updateInterviewAnswerSchema = z.object({
+  answer: z.string().max(20000, "回答内容过长（最多 20000 字符）"),
+});
+
+export type UpdateInterviewAnswerInput = z.infer<
+  typeof updateInterviewAnswerSchema
+>;

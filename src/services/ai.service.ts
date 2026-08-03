@@ -336,3 +336,73 @@ export async function aiFormatReview(resumeText: string): Promise<AIFormatReview
     return [];
   }
 }
+
+// ============================================================
+// Phase 8: 模拟面试题生成（技术面 / 项目面 / 行为面）
+// ============================================================
+
+const interviewQuestionsSchema = z.object({
+  questions: z
+    .array(
+      z.object({
+        type: z.enum(["technical", "project", "behavioral"]),
+        question: z.string().min(1, "题目为空"),
+      })
+    )
+    .min(1, "AI 未生成题目")
+    .max(12, "题目数量超出预期"),
+});
+
+export interface InterviewQuestionInput {
+  resumeText: string;
+  jdText: string;
+  targetRoles: string[];
+}
+
+export type InterviewQuestionItem = {
+  type: "technical" | "project" | "behavioral";
+  question: string;
+};
+
+/**
+ * 基于简历 + JD + 目标岗位画像生成模拟面试题。
+ * 与 aiEditResume 相同：未配置真实 LLM 时直接报错，不用 mock 冒充。
+ */
+export async function generateInterviewQuestions(
+  input: InterviewQuestionInput
+): Promise<InterviewQuestionItem[]> {
+  if (!isLLMConfigured()) {
+    throw new AIServiceError(
+      "AI_NOT_CONFIGURED",
+      "尚未配置 LLM API Key，请先在 .env 中设置 LLM_API_KEY"
+    );
+  }
+
+  const profiles = await getProfiles(input.targetRoles);
+  const targetRoleName =
+    profiles.map((p) => p.name).join("、") ||
+    input.targetRoles.join("、") ||
+    "未指定";
+
+  const prompt = await loadPrompt("interview-questions", {
+    targetRoleName,
+    jdText: input.jdText,
+    resumeText: input.resumeText,
+  });
+
+  try {
+    const completion = await llmClient().chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.5,
+    });
+    const raw = completion.choices[0]?.message?.content;
+    if (!raw) throw new AIServiceError("AI_EMPTY", "AI 返回为空");
+    return interviewQuestionsSchema.parse(JSON.parse(raw)).questions;
+  } catch (e) {
+    console.error("generateInterviewQuestions failed:", e);
+    if (e instanceof AIServiceError) throw e;
+    throw new AIServiceError("AI_SERVICE_ERROR", "面试题生成服务暂时不可用，请稍后重试");
+  }
+}
