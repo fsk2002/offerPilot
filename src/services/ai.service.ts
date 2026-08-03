@@ -62,7 +62,7 @@ interface QualitativeInput {
 }
 
 // 把画像的叙事策略 + 评估维度拼成给 LLM 的参考文本
-function buildProfileNarrative(profile: RoleProfile): string {
+export function buildProfileNarrative(profile: RoleProfile): string {
   const dims = profile.evaluationDimensions
     .map((d) => `- ${d.name}：${d.prompt}`)
     .join("\n");
@@ -407,5 +407,56 @@ export async function generateInterviewQuestions(
     console.error("generateInterviewQuestions failed:", e);
     if (e instanceof AIServiceError) throw e;
     throw new AIServiceError("AI_SERVICE_ERROR", "面试题生成服务暂时不可用，请稍后重试");
+  }
+}
+
+// ============================================================
+// P2 补齐: AI 简历生成（从零生成草稿）
+// ============================================================
+
+const resumeDraftSchema = z.object({
+  markdown: z.string().min(1, "AI 返回了空简历"),
+});
+
+export interface ResumeDraftInput {
+  roleName: string;
+  profileNarrative: string;
+  notes: string;
+}
+
+/**
+ * 根据目标岗位画像 + 用户经历要点生成完整简历 Markdown 草稿。
+ * 需要真实 LLM；未配置时明确报错。
+ */
+export async function generateResumeDraft(
+  input: ResumeDraftInput
+): Promise<string> {
+  if (!isLLMConfigured()) {
+    throw new AIServiceError(
+      "AI_NOT_CONFIGURED",
+      "尚未配置 LLM API Key，请先在 .env 中设置 LLM_API_KEY"
+    );
+  }
+
+  const prompt = await loadPrompt("resume-generate", {
+    targetRoleName: input.roleName,
+    roleProfileNarrative: input.profileNarrative,
+    notes: input.notes.trim() || "（用户未提供，请基于岗位画像生成含 TODO 占位的完整草稿）",
+  });
+
+  try {
+    const completion = await llmClient().chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.5,
+    });
+    const raw = completion.choices[0]?.message?.content;
+    if (!raw) throw new AIServiceError("AI_EMPTY", "AI 返回为空");
+    return resumeDraftSchema.parse(JSON.parse(raw)).markdown;
+  } catch (e) {
+    console.error("generateResumeDraft failed:", e);
+    if (e instanceof AIServiceError) throw e;
+    throw new AIServiceError("AI_SERVICE_ERROR", "简历生成服务暂时不可用，请稍后重试");
   }
 }

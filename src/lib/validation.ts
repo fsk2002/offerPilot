@@ -118,3 +118,11 @@ export const batchCompareSchema = z.object({
 });
 
 export type BatchCompareInput = z.infer<typeof batchCompareSchema>;
+
+// P2 补齐: AI 生成简历草稿
+export const generateResumeSchema = z.object({
+  roleId: z.string().min(1, "请选择目标岗位"),
+  notes: z.string().max(20000, "经历要点过长（最多 20000 字符）").optional(),
+});
+
+export type GenerateResumeInput = z.infer<typeof generateResumeSchema>;

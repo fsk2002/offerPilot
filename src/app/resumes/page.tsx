@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDropzone } from "react-dropzone";
+import type { RoleTree } from "@/types/role-profile";
 
 interface Resume {
   id: string;
@@ -19,6 +20,12 @@ export default function ResumesPage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showGenerate, setShowGenerate] = useState(false);
+  const [roleTree, setRoleTree] = useState<RoleTree | null>(null);
+  const [roleId, setRoleId] = useState("");
+  const [notes, setNotes] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState("");
 
   const fetchResumes = useCallback(async () => {
     const res = await fetch("/api/resumes");
@@ -52,6 +59,24 @@ export default function ResumesPage() {
       active = false;
     };
   }, [router]);
+
+  // 加载岗位分类树（AI 生成草稿用）
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/role-profiles");
+        const data = await res.json();
+        if (!active || !data.success) return;
+        setRoleTree(data.data);
+      } catch {
+        // 弹窗内会显示"加载失败"
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -111,6 +136,32 @@ export default function ResumesPage() {
     }
   };
 
+  const handleGenerate = async () => {
+    if (!roleId) {
+      setGenError("请选择目标岗位");
+      return;
+    }
+    setGenerating(true);
+    setGenError("");
+    try {
+      const res = await fetch("/api/resumes/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roleId, notes }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setGenError(data.error?.message || "生成失败");
+        return;
+      }
+      router.push(`/resumes/${data.data.id}/edit`);
+    } catch {
+      setGenError("生成失败，请稍后重试");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -156,6 +207,13 @@ export default function ResumesPage() {
           <h2 className="font-semibold text-lg">
             简历版本 ({resumes.length})
           </h2>
+          <button
+            type="button"
+            onClick={() => setShowGenerate(true)}
+            className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-secondary transition-colors"
+          >
+            AI 生成简历草稿
+          </button>
           {resumes.length === 0 ? (
             <p className="text-muted-foreground text-sm py-8 text-center">
               还没有上传过简历
@@ -205,6 +263,82 @@ export default function ResumesPage() {
           )}
         </div>
       </div>
+
+      {showGenerate && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4">
+          <div className="mx-auto my-8 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">AI 生成简历草稿</h2>
+                <p className="text-sm text-gray-500">
+                  选择目标岗位、粘贴经历要点，AI 生成完整 Markdown 草稿
+                </p>
+              </div>
+              <button
+                onClick={() => setShowGenerate(false)}
+                className="rounded-lg px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100"
+              >
+                关闭
+              </button>
+            </div>
+
+            <div>
+              <p className="mb-1 text-sm font-medium">目标岗位</p>
+              {!roleTree ? (
+                <p className="text-sm text-gray-400">加载岗位画像...</p>
+              ) : (
+                <select
+                  value={roleId}
+                  onChange={(e) => setRoleId(e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-background"
+                >
+                  <option value="">请选择岗位</option>
+                  {roleTree.categories.map((cat) => (
+                    <optgroup key={cat.name} label={cat.name}>
+                      {cat.families.flatMap((f) =>
+                        f.roles.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {f.name} · {role.name}
+                          </option>
+                        ))
+                      )}
+                    </optgroup>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div>
+              <p className="mb-1 text-sm font-medium">经历要点（可选）</p>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={6}
+                placeholder={"例如：\n- 本科计算机，2027 届\n- 做过低代码平台，React + Node.js\n- 熟悉 LLM 应用开发"}
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                留空时 AI 会基于岗位画像生成含 TODO 占位的完整草稿。
+              </p>
+            </div>
+
+            {genError && (
+              <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                {genError}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={generating}
+              className="w-full px-4 py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
+            >
+              {generating ? "AI 生成中，通常需要 10-30 秒..." : "生成草稿"}
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
