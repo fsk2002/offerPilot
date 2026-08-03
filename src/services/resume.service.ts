@@ -73,7 +73,7 @@ export async function uploadResume(
 // Get all resumes for a user
 // ============================================================
 export async function getUserResumes(userId: string) {
-  return prisma.resume.findMany({
+  const resumes = await prisma.resume.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
     select: {
@@ -85,6 +85,18 @@ export async function getUserResumes(userId: string) {
       updatedAt: true,
     },
   });
+
+  // 只返回版本链头（最新版本）：被其他版本作为 parent 引用的行是历史版本，
+  // 不在列表展示，避免每次"另存为新版本"后列表无限膨胀。
+  const referencedIds = await prisma.resume.findMany({
+    where: { userId, parentId: { not: null } },
+    select: { parentId: true },
+  });
+  const parentIds = new Set(
+    referencedIds.map((r) => r.parentId as string)
+  );
+
+  return resumes.filter((r) => !parentIds.has(r.id));
 }
 
 // ============================================================
@@ -156,6 +168,117 @@ export async function updateResumeMarkdown(
   await prisma.resume.update({
     where: { id },
     data: { content: { ...prevContent, markdown } },
+  });
+}
+
+// ============================================================
+// Phase 8: 版本链
+// 设计：每个版本是一行 Resume，通过 parentId 自关联成链；
+//       上传 = v1，之后每次"另存为新版本"追加一行，文件路径沿用原 PDF。
+// ============================================================
+
+/**
+ * 取某简历所在版本链的全部版本（从根到最新，按 version 升序）。
+ * 先沿 parentId 回溯到根，再从根沿 children 收集整条链。
+ */
+export async function getResumeVersions(id: string, userId: string) {
+  const target = await prisma.resume.findFirst({ where: { id, userId } });
+  if (!target) {
+    throw new ResumeError("NOT_FOUND", "简历不存在");
+  }
+
+  const all = await prisma.resume.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      parentId: true,
+      version: true,
+      fileName: true,
+      source: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  const byId = new Map(all.map((r) => [r.id, r]));
+
+  // 回溯到根
+  let rootId = target.id;
+  let cursor = all.find((r) => r.id === target.id);
+  while (cursor?.parentId) {
+    const parent = byId.get(cursor.parentId);
+    if (!parent) break;
+    rootId = parent.id;
+    cursor = parent;
+  }
+
+  // 从根收集所有后代
+  const childrenOf = new Map<string, (typeof all)[number][]>();
+  for (const r of all) {
+    if (r.parentId) {
+      const arr = childrenOf.get(r.parentId) ?? [];
+      arr.push(r);
+      childrenOf.set(r.parentId, arr);
+    }
+  }
+
+  const chain: (typeof all)[number][] = [];
+  const visit = (rid: string) => {
+    const node = byId.get(rid);
+    if (!node) return;
+    chain.push(node);
+    for (const child of childrenOf.get(rid) ?? []) visit(child.id);
+  };
+  visit(rootId);
+
+  chain.sort((a, b) =>
+    a.version === b.version
+      ? a.createdAt.getTime() - b.createdAt.getTime()
+      : a.version - b.version
+  );
+
+  return chain.map((r) => ({
+    id: r.id,
+    version: r.version,
+    fileName: r.fileName,
+    source: r.source,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+  }));
+}
+
+/**
+ * 从当前版本派生一个新版本（parentId = 当前 id，version = 链内最大 + 1）。
+ * content/rawParsed 复制，filePath 沿用原 PDF（版本差异在 Markdown 内容上）。
+ * 也用于"版本回退"：对任意旧版本调用即可从该版本重新开分支。
+ */
+export async function createResumeVersion(id: string, userId: string) {
+  const resume = await prisma.resume.findFirst({ where: { id, userId } });
+  if (!resume) {
+    throw new ResumeError("NOT_FOUND", "简历不存在");
+  }
+
+  const versions = await getResumeVersions(id, userId);
+  const maxVersion = versions.reduce((max, v) => Math.max(max, v.version), 0);
+  const newVersion = maxVersion + 1;
+
+  return prisma.resume.create({
+    data: {
+      userId,
+      fileName: resume.fileName,
+      filePath: resume.filePath,
+      fileSize: resume.fileSize,
+      version: newVersion,
+      source: "editor",
+      content: resume.content ?? undefined,
+      rawParsed: resume.rawParsed ?? undefined,
+      parentId: id,
+    },
+    select: {
+      id: true,
+      version: true,
+      fileName: true,
+      createdAt: true,
+    },
   });
 }
 
