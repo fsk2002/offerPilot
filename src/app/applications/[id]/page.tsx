@@ -190,14 +190,22 @@ export default function ApplicationDetailPage() {
           <Link href="/applications" className="text-sm text-blue-500 hover:underline">
             ← 返回投递列表
           </Link>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleting}
-            className="text-sm text-red-500 hover:text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {deleting ? "删除中..." : "删除投递"}
-          </button>
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/interview/${app.id}`}
+              className="text-sm text-blue-500 hover:underline"
+            >
+              模拟面试题
+            </Link>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="text-sm text-red-500 hover:text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? "删除中..." : "删除投递"}
+            </button>
+          </div>
         </div>
 
         {/* 公司 / 岗位 / 状态 */}
