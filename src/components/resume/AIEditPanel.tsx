@@ -36,6 +36,7 @@ export default function AIEditPanel({
   const [roleTree, setRoleTree] = useState<RoleTree | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [jdText, setJdText] = useState("");
+  const [sections, setSections] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AIEditResponse | null>(null);
   const [accepted, setAccepted] = useState<boolean[]>([]);
@@ -60,6 +61,20 @@ export default function AIEditPanel({
     );
   };
 
+  const SECTION_OPTIONS: Array<{ id: string; label: string }> = [
+    { id: "summary", label: "个人简介" },
+    { id: "education", label: "教育经历" },
+    { id: "experience", label: "工作经历" },
+    { id: "projects", label: "项目经历" },
+    { id: "skills", label: "技能" },
+  ];
+
+  const toggleSection = (id: string) => {
+    setSections((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
   const runAIEdit = async () => {
     setLoading(true);
     setError("");
@@ -72,6 +87,7 @@ export default function AIEditPanel({
           markdown,
           targetRoleIds: selectedRoles,
           jdText: jdText.trim() || undefined,
+          sections: sections.length ? sections : undefined,
         }),
       });
       const data = await res.json();
@@ -178,6 +194,33 @@ export default function AIEditPanel({
                 placeholder="粘贴职位描述..."
                 className="w-full rounded-lg border border-gray-200 p-3 text-sm"
               />
+            </div>
+
+            {/* 可选章节（PRD P1：章节级修改） */}
+            <div>
+              <p className="mb-2 text-sm font-medium">
+                修改范围（可选，不选则全篇）
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {SECTION_OPTIONS.map((s) => (
+                  <label
+                    key={s.id}
+                    className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                      sections.includes(s.id)
+                        ? "border-blue-400 bg-blue-50 text-blue-700"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={sections.includes(s.id)}
+                      onChange={() => toggleSection(s.id)}
+                      className="h-3.5 w-3.5"
+                    />
+                    {s.label}
+                  </label>
+                ))}
+              </div>
             </div>
 
             {error && (

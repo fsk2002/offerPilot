@@ -232,6 +232,7 @@ export interface AIEditInput {
   resumeText: string;
   targetRoleIds: string[];
   jdText?: string;
+  sections?: string[];
 }
 
 export interface AIEditResult {
@@ -271,6 +272,8 @@ export async function aiEditResume(input: AIEditInput): Promise<AIEditResult> {
     roleProfileNarrative: profileNarrative,
     jdText: input.jdText?.trim() || "（未提供）",
     resumeText: input.resumeText,
+    sections: input.sections?.length ? "指定" : "未指定（全篇）",
+    sectionsList: input.sections?.length ? input.sections.join("、") : "全部章节",
   });
 
   try {

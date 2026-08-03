@@ -76,6 +76,25 @@ export async function getCurrentUser(payload: JwtPayload) {
 }
 
 // ============================================================
+// 更新个人资料（昵称；邮箱作为登录标识不可改）
+// ============================================================
+export async function updateProfile(userId: string, name: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+  if (!user) {
+    throw new AuthError("USER_NOT_FOUND", "用户不存在");
+  }
+
+  return prisma.user.update({
+    where: { id: userId },
+    data: { name },
+    select: { id: true, email: true, name: true, avatar: true, createdAt: true },
+  });
+}
+
+// ============================================================
 // Error class
 // ============================================================
 export class AuthError extends Error {

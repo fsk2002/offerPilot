@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { statusLabel, statusColor } from "@/lib/application-status";
+import {
+  APPLICATION_STATUSES,
+  statusLabel,
+  statusColor,
+} from "@/lib/application-status";
 
 interface Application {
   id: string;
@@ -26,6 +30,7 @@ export default function ApplicationsPage() {
   const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -58,6 +63,10 @@ export default function ApplicationsPage() {
     );
   }
 
+  const visible = applications.filter((a) =>
+    filterStatus === "" ? true : a.status === filterStatus
+  );
+
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -66,24 +75,46 @@ export default function ApplicationsPage() {
             <h1 className="text-2xl font-bold">投递记录</h1>
             <p className="text-muted-foreground">查看每次分析的匹配度报告</p>
           </div>
-          <Link
-            href="/applications/new"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
-          >
-            新建分析
-          </Link>
+          <div className="flex items-center gap-3">
+            <label htmlFor="status-filter" className="text-sm text-muted-foreground">
+              状态
+            </label>
+            <select
+              id="status-filter"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 py-2 text-sm border border-border rounded-lg bg-background"
+            >
+              <option value="">全部</option>
+              {APPLICATION_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {statusLabel(s)}
+                </option>
+              ))}
+            </select>
+            <Link
+              href="/applications/new"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+            >
+              新建分析
+            </Link>
+          </div>
         </div>
 
-        {applications.length === 0 ? (
+        {visible.length === 0 ? (
           <div className="text-center py-16 space-y-3">
-            <p className="text-muted-foreground">还没有投递分析</p>
+            <p className="text-muted-foreground">
+              {applications.length === 0
+                ? "还没有投递分析"
+                : "当前筛选条件下没有投递记录"}
+            </p>
             <Link href="/applications/new" className="text-blue-500 hover:underline">
               上传简历、粘贴 JD，开始第一次分析 →
             </Link>
           </div>
         ) : (
           <div className="space-y-2">
-            {applications.map((app) => (
+            {visible.map((app) => (
               <Link
                 key={app.id}
                 href={`/applications/${app.id}`}

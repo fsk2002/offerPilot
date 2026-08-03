@@ -64,6 +64,10 @@ export const aiEditSchema = z.object({
     .min(1, "请至少选择一个目标岗位")
     .max(3, "最多选择 3 个目标岗位"),
   jdText: z.string().max(20000, "JD 内容过长").optional(),
+  sections: z
+    .array(z.enum(["summary", "education", "experience", "projects", "skills"]))
+    .max(5, "章节数量超出预期")
+    .optional(),
 });
 
 export type AIEditInput = z.infer<typeof aiEditSchema>;
@@ -91,3 +95,10 @@ export const updateInterviewAnswerSchema = z.object({
 export type UpdateInterviewAnswerInput = z.infer<
   typeof updateInterviewAnswerSchema
 >;
+
+// Phase 9 打磨: 个人资料更新（/settings）
+export const updateProfileSchema = z.object({
+  name: z.string().trim().min(1, "昵称不能为空").max(50, "昵称过长（最多 50 字符）"),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

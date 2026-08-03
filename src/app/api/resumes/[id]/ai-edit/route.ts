@@ -31,13 +31,14 @@ export async function POST(
       return error("VALIDATION_ERROR", msg);
     }
 
-    const { markdown, targetRoleIds, jdText } = parsed.data;
+    const { markdown, targetRoleIds, jdText, sections } = parsed.data;
 
     // LLM 改写
     const result = await aiEditResume({
       resumeText: markdown,
       targetRoleIds,
       jdText,
+      sections,
     });
 
     // 服务端计算 diff（LLM 只给完整文本，diff 由我们算，保证位置可靠）
