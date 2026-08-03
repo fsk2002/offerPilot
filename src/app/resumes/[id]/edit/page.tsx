@@ -38,6 +38,7 @@ export default function ResumeEditPage() {
   const [exporting, setExporting] = useState(false);
   const [showAIEdit, setShowAIEdit] = useState(false);
   const [showFormatCheck, setShowFormatCheck] = useState(false);
+  const [savingVersion, setSavingVersion] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -134,6 +135,37 @@ export default function ResumeEditPage() {
     }
   };
 
+  // Phase 8: 把当前编辑区内容另存为新版本，并跳转到新版本继续编辑。
+  // 新版本行会带上 markdown，避免落库的是数据库里可能过期的旧内容。
+  const handleSaveAsVersion = async () => {
+    if (!meta) return;
+    if (
+      !confirm(
+        "将当前内容另存为新版本，并跳转到新版本继续编辑。原版本保持不变，是否继续？"
+      )
+    ) {
+      return;
+    }
+    setSavingVersion(true);
+    try {
+      const res = await fetch(`/api/resumes/${meta.id}/versions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markdown: value }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/resumes/${data.data.id}/edit`);
+      } else {
+        alert(data.error?.message || "创建版本失败");
+      }
+    } catch {
+      alert("创建版本失败，请稍后重试");
+    } finally {
+      setSavingVersion(false);
+    }
+  };
+
   const previewRef = useRef<HTMLDivElement>(null);
 
   // PDF 导出：对离屏渲染的完整预览 DOM 用 html2canvas 截图 → jsPDF 按 A4 分页。
@@ -227,6 +259,14 @@ export default function ResumeEditPage() {
             </button>
             <button
               type="button"
+              onClick={handleSaveAsVersion}
+              disabled={savingVersion}
+              className="px-4 py-2 text-sm rounded-lg font-medium border border-border hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {savingVersion ? "创建中..." : "另存为新版本"}
+            </button>
+            <button
+              type="button"
               onClick={handleSave}
               disabled={saving || !dirty}
               className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -237,6 +277,12 @@ export default function ResumeEditPage() {
             >
               {saving ? "保存中..." : "保存"}
             </button>
+            <Link
+              href={`/resumes/${meta.id}/versions`}
+              className="px-4 py-2 text-sm rounded-lg font-medium border border-border hover:bg-secondary transition-colors"
+            >
+              版本历史
+            </Link>
           </div>
         </div>
 

@@ -251,7 +251,11 @@ export async function getResumeVersions(id: string, userId: string) {
  * content/rawParsed 复制，filePath 沿用原 PDF（版本差异在 Markdown 内容上）。
  * 也用于"版本回退"：对任意旧版本调用即可从该版本重新开分支。
  */
-export async function createResumeVersion(id: string, userId: string) {
+export async function createResumeVersion(
+  id: string,
+  userId: string,
+  markdown?: string
+) {
   const resume = await prisma.resume.findFirst({ where: { id, userId } });
   if (!resume) {
     throw new ResumeError("NOT_FOUND", "简历不存在");
@@ -269,7 +273,15 @@ export async function createResumeVersion(id: string, userId: string) {
       fileSize: resume.fileSize,
       version: newVersion,
       source: "editor",
-      content: resume.content ?? undefined,
+      // 若带了 markdown（编辑器"另存为新版本"），保存当前编辑内容；
+      // 否则继承原版 content（版本回退场景）。
+      content:
+        markdown !== undefined
+          ? {
+              ...((resume.content as Record<string, unknown> | null) ?? {}),
+              markdown,
+            }
+          : (resume.content ?? undefined),
       rawParsed: resume.rawParsed ?? undefined,
       parentId: id,
     },

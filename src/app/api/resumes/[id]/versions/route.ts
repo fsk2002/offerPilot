@@ -5,6 +5,7 @@ import {
   createResumeVersion,
   ResumeError,
 } from "@/services/resume.service";
+import { createVersionSchema } from "@/lib/validation";
 import { success, error } from "@/services/api-helper";
 
 /**
@@ -33,7 +34,7 @@ export async function GET(
 }
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const token = await getAuthToken();
@@ -42,7 +43,27 @@ export async function POST(
 
   try {
     const { id } = await params;
-    const created = await createResumeVersion(id, payload.userId);
+
+    // 可选 body：编辑器"另存为新版本"时携带当前 markdown
+    let markdown: string | undefined;
+    const contentType = request.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      try {
+        const body = await request.json();
+        const parsed = createVersionSchema.safeParse(body);
+        if (!parsed.success) {
+          return error(
+            "VALIDATION_ERROR",
+            parsed.error.errors[0]?.message || "参数错误"
+          );
+        }
+        markdown = parsed.data.markdown;
+      } catch {
+        // 空 body 视为不带 markdown
+      }
+    }
+
+    const created = await createResumeVersion(id, payload.userId, markdown);
     return success(created, 201);
   } catch (e) {
     if (e instanceof ResumeError) {

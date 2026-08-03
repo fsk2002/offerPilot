@@ -182,6 +182,12 @@ export default function ResumesPage() {
                     >
                       编辑
                     </Link>
+                    <Link
+                      href={`/resumes/${resume.id}/versions`}
+                      className="text-sm text-blue-500 hover:text-blue-600 hover:underline"
+                    >
+                      版本历史
+                    </Link>
                     <button
                       type="button"
                       onClick={() => handleDelete(resume.id, resume.fileName)}

@@ -75,3 +75,10 @@ export const formatCheckSchema = z.object({
 });
 
 export type FormatCheckInput = z.infer<typeof formatCheckSchema>;
+
+// Phase 8: 另存为新版本（可选携带当前编辑区内容）
+export const createVersionSchema = z.object({
+  markdown: z.string().max(50000, "内容过长（最多 50000 字符）").optional(),
+});
+
+export type CreateVersionInput = z.infer<typeof createVersionSchema>;
