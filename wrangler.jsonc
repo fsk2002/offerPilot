@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "offerpilot",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "LLM_BASE_URL": "https://ark.cn-beijing.volces.com/api/v3",
+    "LLM_MODEL": "doubao-seed-2-1-pro-260628",
+    "MAX_FILE_SIZE": "10485760"
+  }
+}

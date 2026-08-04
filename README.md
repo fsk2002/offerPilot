@@ -204,6 +204,7 @@ TypeScript 检查、ESLint 与生产构建。
 - [产品需求文档 (PRD)](./docs/PRD.md)
 - [技术设计文档](./docs/TECH-DESIGN.md)
 - [演示路径](./docs/DEMO.md)
+- [Cloudflare 部署指南](./docs/CLOUDFLARE-DEPLOY.md)
 - [贡献指南](./CONTRIBUTING.md)
 
 ## License

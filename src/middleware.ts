@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { verifyTokenEdge } from "@/lib/auth-edge";
 
 // 需要登录才能访问的路由前缀
 const PROTECTED_ROUTES = [
@@ -18,7 +18,7 @@ const PROTECTED_ROUTES = [
 // 公开 API 路由（不需要登录）
 const PUBLIC_API_ROUTES = ["/api/auth/register", "/api/auth/login", "/api/auth/login-form", "/api/auth/register-form"];
 
-export function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 公开路由直接放行
@@ -40,7 +40,7 @@ export function proxy(request: NextRequest) {
   if (needsAuth) {
     const token = request.cookies.get("offerpilot_token")?.value;
 
-    if (!token || !verifyToken(token)) {
+    if (!token || !(await verifyTokenEdge(token))) {
       // API 请求返回 401，页面请求重定向到登录页
       if (pathname.startsWith("/api/")) {
         return NextResponse.json(
