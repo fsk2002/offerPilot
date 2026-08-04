@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "offerpilot",
   "main": ".open-next/worker.js",
+  "build": {
+    "command": "pnpm build:cf"
+  },
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
