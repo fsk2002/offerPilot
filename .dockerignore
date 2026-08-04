@@ -1,0 +1,23 @@
+# 依赖与构建产物不进镜像构建上下文
+node_modules
+.next
+out
+.git
+.gitignore
+
+# 本地环境与密钥
+.env
+.env.*
+!.env.example
+
+# 用户上传文件（运行时挂载，不进镜像）
+public/uploads
+
+# 文档与临时文件
+docs
+README.md
+CLAUDE.md
+CONTRIBUTING.md
+*.log
+*.tsbuildinfo
+.DS_Store

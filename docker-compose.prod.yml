@@ -1,8 +1,8 @@
-version: "3.8"
 
 services:
   postgres:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -16,7 +16,10 @@ services:
       retries: 10
 
   web:
+    # 默认本地构建；CI 部署时用 IMAGE 指定 ghcr 镜像 tag 实现拉取与回滚
+    image: ${IMAGE:-offerpilot:local}
     build: .
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
