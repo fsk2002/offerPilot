@@ -1,5 +1,20 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+  // ============================================================
+  // Cloudflare Workers Builds 平台必填配置（容易踩坑）
+  // ------------------------------------------------------------
+  // 原因：OpenNext 项目里运行 `wrangler deploy` 会被委托给
+  // `opennextjs-cloudflare deploy`，该命令不会执行 wrangler 的
+  // build.command，也没有 build-first 参数；它只检查
+  // `.open-next/.build/open-next.config.edge.mjs`，缺失即报
+  // "Could not find compiled Open Next config, did you run the build command?"
+  //
+  // 因此平台侧的 Build/Deploy command 必须这样设置：
+  //   Build  command = pnpm build:cf
+  //   Deploy command = pnpm deploy:cf   （自包含：build:cf && wrangler deploy）
+  // 推荐直接用 GitHub Actions（.github/workflows/deploy-cloudflare.yml），
+  // 构建与部署在同一任务内完成，不依赖平台两阶段产物保留。
+  // ============================================================
   "name": "offerpilot",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-01-01",

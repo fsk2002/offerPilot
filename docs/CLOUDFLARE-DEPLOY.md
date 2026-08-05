@@ -4,6 +4,34 @@
 > 数据库用 Neon Serverless Postgres（Workers 官方兼容），上传文件存 R2（S3 API）。
 > 已本地验证：`opennextjs-cloudflare build` 成功、`wrangler deploy --dry-run` 通过。
 
+## ⚠️ 平台必读：Workers Builds 的正确命令（报错先看这里）
+
+如果你在 Cloudflare Workers Builds 看到：
+
+```text
+OpenNext project detected, calling `opennextjs-cloudflare deploy`
+ERROR Could not find compiled Open Next config, did you run the build command?
+```
+
+根因是**部署阶段运行时没有 OpenNext 编译产物**（`.open-next/.build/open-next.config.edge.mjs` 不存在）：
+
+- OpenNext 项目里运行 `wrangler deploy` 会被 wrangler 委托给 `opennextjs-cloudflare deploy`；
+- 该委托路径**不会执行** `wrangler.jsonc` 里的 `build.command`；
+- `opennextjs-cloudflare deploy` 没有 build-first 参数，只检查编译配置是否存在；
+- 如果平台 Build command 还是默认的 `npm run build`（只跑 `next build`），也不会生成 `.open-next`。
+
+正确配置（Cloudflare Dashboard → Workers & Pages → 你的项目 → Settings → Builds & deployments）：
+
+| 字段 | 值 |
+|------|-----|
+| Build command | `pnpm build:cf` |
+| Deploy command | `pnpm deploy:cf`（即 `pnpm build:cf && wrangler deploy`） |
+| Root directory | 项目根目录（含 `wrangler.jsonc` 的目录） |
+
+> Deploy command 必须自包含（先构建再部署），不要只填 `wrangler deploy`。
+> 推荐直接使用 [GitHub Actions 自动部署](#推荐方式github-actions-自动部署)，
+> 构建与部署在同一任务内完成，彻底规避平台两阶段产物丢失。
+
 ## 架构
 
 ```
