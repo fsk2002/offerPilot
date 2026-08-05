@@ -32,6 +32,11 @@ ERROR Could not find compiled Open Next config, did you run the build command?
 > 推荐直接使用 [GitHub Actions 自动部署](#推荐方式github-actions-自动部署)，
 > 构建与部署在同一任务内完成，彻底规避平台两阶段产物丢失。
 
+**本地构建卡在 "Creating an optimized production build ..." 排查**：先确认没有
+`next dev`/`next build` 同时在跑，再删除陈旧的 `.next/lock` 后重试：
+`rm -f .next/lock && pnpm build:cf`。若在受限沙箱环境仍静默卡死，多半是
+Turbopack 无法创建系统临时目录 IPC 管道，换到正常终端运行即可。
+
 ## 架构
 
 ```
