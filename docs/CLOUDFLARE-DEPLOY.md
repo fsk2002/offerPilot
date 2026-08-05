@@ -21,6 +21,43 @@ Cloudflare Workers（OpenNext worker.js）
 3. R2 存储桶（免费 10GB）
 4. Node.js >= 22（wrangler 4 要求）
 
+## 推荐方式：GitHub Actions 自动部署
+
+> Cloudflare Workers Builds 的构建/部署分阶段执行，`.open-next` 产物可能丢失，
+> 导致部署阶段报 "Could not find compiled Open Next config"。
+> 改用 GitHub Actions：构建与部署在同一任务内完成，push main 自动上线。
+
+### 1. 创建 Cloudflare API Token
+
+Cloudflare Dashboard → 我的个人资料 → API 令牌 → 创建令牌：
+- 权限：`Account - Workers Scripts - Edit`、`Account - Workers R2 - Edit`
+- Account Resources 选你的账号
+
+同时记录 **Account ID**（Dashboard 右侧栏或 Workers 首页）。
+
+### 2. 配置 GitHub Secrets
+
+仓库 → Settings → Secrets and variables → Actions：
+
+| Secret | 值 |
+|--------|-----|
+| `CLOUDFLARE_API_TOKEN` | 上一步创建的 API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID |
+
+### 3. 触发部署
+
+```bash
+git push origin main
+```
+
+GitHub Actions 会自动运行 `Deploy Cloudflare` workflow：
+install → prisma generate → `pnpm build:cf` → `wrangler deploy`。
+手动触发：Actions → Deploy Cloudflare → Run workflow。
+
+> 平台（Workers Builds）方式仍可用，但请把 Deploy command 设为
+> `pnpm deploy:cf`（即 `pnpm build:cf && wrangler deploy`），
+> 避免两阶段产物丢失；推荐直接使用 GitHub Actions 方式。
+
 ## 第一步：创建 R2 桶和 API Token
 
 ```bash
