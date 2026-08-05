@@ -84,8 +84,18 @@ export default function ResumesPage() {
 
     setUploading(true);
     try {
+      // 浏览器端提取 PDF 文本（pdf.js 不进 Cloudflare Worker 包）
+      let text = "";
+      try {
+        const { extractPdfText } = await import("@/lib/pdf-client");
+        text = await extractPdfText(file);
+      } catch (e) {
+        console.warn("Client PDF text extraction failed:", e);
+      }
+
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("text", text);
 
       const res = await fetch("/api/resumes", {
         method: "POST",

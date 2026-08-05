@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { saveFile, deleteFile } from "@/lib/file-storage";
 import { contentToMarkdown } from "@/lib/resume-markdown";
 import { parseResume } from "@/services/ai.service";
+import { extractPdfTextFromBuffer } from "@/lib/pdf-server";
 import type { ResumeContent } from "@/types/resume";
 
 // ============================================================
@@ -9,7 +10,8 @@ import type { ResumeContent } from "@/types/resume";
 // ============================================================
 export async function uploadResume(
   userId: string,
-  file: File
+  file: File,
+  clientText?: string
 ): Promise<{
   id: string;
   fileName: string;
@@ -38,13 +40,15 @@ export async function uploadResume(
   const { filePath, fileSize } = await saveFile(buffer, file.name);
 
   // Extract text from PDF
-  let rawText = "";
-  try {
-    const pdfParse = (await import("pdf-parse")).default;
-    const data = await pdfParse(buffer);
-    rawText = data.text;
-  } catch (e) {
-    console.warn("PDF parse failed, saving without text:", e);
+  // 优先使用浏览器端提取的文本（Cloudflare 构建不打包 pdf.js）；
+  // 未提供时回退到服务端 pdf-parse（Docker/本地）。
+  let rawText = clientText?.trim() ?? "";
+  if (!rawText) {
+    try {
+      rawText = await extractPdfTextFromBuffer(buffer);
+    } catch (e) {
+      console.warn("PDF parse failed, saving without text:", e);
+    }
   }
 
   // 结构化解析（parseResume）依赖 LLM，耗时数十秒，不阻塞上传；

@@ -10,12 +10,17 @@ const nextConfig: NextConfig = {
         turbopack: {
           resolveAlias: {
             "@/lib/prisma": "./src/lib/prisma.cf.ts",
+            "@/lib/pdf-server": "./src/lib/pdf-server.cf.ts",
           },
         },
         webpack: (config: { resolve: { alias: Record<string, string> } }) => {
           config.resolve.alias["@/lib/prisma"] = path.resolve(
             process.cwd(),
             "src/lib/prisma.cf.ts"
+          );
+          config.resolve.alias["@/lib/pdf-server"] = path.resolve(
+            process.cwd(),
+            "src/lib/pdf-server.cf.ts"
           );
           return config;
         },

@@ -164,7 +164,7 @@ pnpm dev:cf                       # wrangler dev，本地 workerd 运行
 | 限制 | 说明 | 应对 |
 |------|------|------|
 | **AI 分析可能超时** | Workers 请求时长限制（免费约 30s），火山方舟质评 10-90s | 换轻量模型（如 doubao-lite）或后续做异步队列 |
-| **Worker 体积** | 当前 bundle gzip 约 4.9MB（含 assets），接近免费档脚本上限 | 若上传报体积错误，升级 Workers Paid（$5/月）或拆分 pdf-parse |
+| **Worker 体积** | PDF 解析已移到浏览器端（pdfjs-dist 作为客户端资源），服务端脚本 gzip 约 2.33MiB，低于免费档 3MiB 上限 | 若后续继续膨胀，优先排查服务端 bundle（`du -h .open-next/server-functions/default/handler.mjs`） |
 | **跨境 LLM** | Workers 海外节点调火山方舟（国内接口）可能慢/不稳 | 换 OpenAI/DeepSeek 海外可达接口，或接受降速 |
 | **旧数据迁移** | 本地/Docker 的 Postgres 数据不会自动到 Neon | 用 `pg_dump` 导入 Neon |
 | **免费请求量** | Workers 免费 10 万请求/天 | 个人 Demo 足够 |

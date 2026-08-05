@@ -25,12 +25,13 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const text = formData.get("text") as string | null;
 
     if (!file) {
       return error("VALIDATION_ERROR", "请上传简历文件");
     }
 
-    const result = await uploadResume(payload.userId, file);
+    const result = await uploadResume(payload.userId, file, text ?? undefined);
     return success(result, 201);
   } catch (e) {
     if (e instanceof ResumeError) {
