@@ -31,6 +31,8 @@ ERROR Could not find compiled Open Next config, did you run the build command?
 > Deploy command 必须自包含（先构建再部署），不要只填 `wrangler deploy`。
 > 推荐直接使用 [GitHub Actions 自动部署](#推荐方式github-actions-自动部署)，
 > 构建与部署在同一任务内完成，彻底规避平台两阶段产物丢失。
+> `build:cf` 会先删除 `.next`/`.open-next` 再全量构建，避免 Cloudflare
+> "Restoring from build output cache" 复用旧的超大产物导致误报 10027。
 
 **本地构建卡在 "Creating an optimized production build ..." 排查**：先确认没有
 `next dev`/`next build` 同时在跑，再删除陈旧的 `.next/lock` 后重试：
